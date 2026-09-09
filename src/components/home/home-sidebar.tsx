@@ -70,26 +70,26 @@ function SidebarFooter({
 }) {
   return (
     <div className="mt-auto space-y-3 pt-2">
-      <div className="rounded-xl p-4 bg-gradient-to-br from-[#1f1f1f] to-[#141414] border border-white/5">
+      <div className="rounded-xl p-4 bg-gradient-to-br from-[#111111] to-[#0b0b0b] border border-[rgba(212,175,55,0.15)]">
         <div className="flex items-center gap-2 mb-2">
-          <Headphones className="h-4 w-4 text-orange-400" />
-          <p className="text-xs font-semibold text-white">24/7 Live Support</p>
+          <Headphones className="h-4 w-4 text-[#d4af37]" />
+          <p className="text-xs font-semibold text-[#f5f5f5]">24/7 Live Support</p>
         </div>
-        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+        <p className="text-[11px] text-[#9a9a9a] mb-3 leading-relaxed">
           Need help? Chat with our team anytime.
         </p>
         <Link
           href={isLoggedIn ? "/dashboard/messages" : "/support"}
           onTouchStart={() => isLoggedIn && onWarmMessages?.()}
-          className="block text-center py-2 rounded-lg bg-white/5 text-white text-xs font-medium hover:bg-white/10 transition-colors border border-white/10"
+          className="block text-center py-2 rounded-lg bg-[rgba(176,0,32,0.12)] text-[#ffd700] text-xs font-semibold hover:bg-[rgba(176,0,32,0.2)] transition-colors border border-[rgba(212,175,55,0.2)]"
         >
           {isLoggedIn ? "Open Messages" : "Contact Support"}
         </Link>
       </div>
 
-      <div className="rounded-xl px-3 py-2.5 flex items-center gap-2 border border-emerald-500/20 bg-emerald-500/5">
-        <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-        <p className="text-[10px] text-emerald-200/80 leading-snug">
+      <div className="rounded-xl px-3 py-2.5 flex items-center gap-2 border border-[rgba(212,175,55,0.15)] bg-[#0b0b0b]">
+        <ShieldCheck className="h-4 w-4 text-[#d4af37] shrink-0" />
+        <p className="text-[10px] text-[#9a9a9a] leading-snug">
           Secure accounts · Fast setup · Trusted platform
         </p>
       </div>
@@ -118,9 +118,12 @@ export function HomeSidebar({
   }
 
   useEffect(() => {
-    import("@/lib/supabase/client").then(({ createClient }) => {
+    let unsubscribe: (() => void) | undefined;
+
+    void import("@/lib/supabase/client").then(({ createClient }) => {
       const supabase = createClient();
       if (!supabase) return;
+
       void supabase.auth.getSession().then(({ data: { session } }) => {
         const loggedIn = !!session?.user;
         setIsLoggedIn(loggedIn);
@@ -130,13 +133,23 @@ export function HomeSidebar({
           }
         }
       });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsLoggedIn(!!session?.user);
+      });
+
+      unsubscribe = () => subscription.unsubscribe();
     });
+
+    return () => unsubscribe?.();
   }, [router]);
 
   return (
     <aside
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border border-white/5 bg-[#161616] p-4 shadow-xl shadow-black/20",
+        "premium-sidebar flex flex-col gap-4 p-4",
         "min-h-[calc(100vh-6rem)] lg:min-h-[calc(100vh-6rem)]",
         className
       )}
@@ -146,15 +159,15 @@ export function HomeSidebar({
       <button
         type="button"
         onClick={onSearchClick}
-        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-gray-900 font-bold text-sm hover:from-orange-400 hover:to-amber-400 transition-all shadow-lg shadow-orange-500/20"
+        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl premium-btn-gold text-sm"
       >
         <Search className="h-4 w-4" />
         Search Games
       </button>
 
       {isLoggedIn && (
-        <div className="rounded-xl p-4 border border-white/5 bg-[#1a1a1a]">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        <div className="rounded-xl p-4 border border-[rgba(212,175,55,0.12)] bg-[#111111]">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#d4af37] mb-3">
             My Account
           </p>
           <nav className="space-y-1">
@@ -170,10 +183,8 @@ export function HomeSidebar({
                   onFocus={() => warmRoute(href)}
                   onTouchStart={() => warmRoute(href)}
                   className={cn(
-                    "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors",
-                    active
-                      ? "bg-white/10 text-white font-medium"
-                      : "text-muted-foreground hover:text-white hover:bg-white/5"
+                    "premium-sidebar-link",
+                    active && "premium-sidebar-link--active"
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -188,8 +199,8 @@ export function HomeSidebar({
         </div>
       )}
 
-      <div className="rounded-xl p-4 border border-white/5 bg-[#1a1a1a]">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+      <div className="rounded-xl p-4 border border-[rgba(212,175,55,0.12)] bg-[#111111]">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#d4af37] mb-3">
           Explore Games
         </p>
         <nav className="space-y-1">
@@ -199,10 +210,8 @@ export function HomeSidebar({
               type="button"
               onClick={() => onTabChange(id)}
               className={cn(
-                "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left",
-                activeTab === id
-                  ? "bg-white/10 text-white font-medium"
-                  : "text-muted-foreground hover:text-white hover:bg-white/5"
+                "premium-sidebar-link text-left",
+                activeTab === id && "premium-sidebar-link--active"
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -214,31 +223,31 @@ export function HomeSidebar({
 
       {!isLoggedIn && (
         <>
-          <div className="rounded-xl p-4 bg-gradient-to-br from-purple-700/80 to-purple-950 border border-purple-500/30">
+          <div className="rounded-xl p-4 bg-[#111111] border border-[rgba(212,175,55,0.2)]">
             <div className="flex items-center gap-2 mb-2">
-              <Crown className="h-5 w-5 text-amber-400" />
-              <h3 className="font-semibold text-sm text-white">Unlock Premium Access</h3>
+              <Crown className="h-5 w-5 text-[#ffd700]" />
+              <h3 className="font-semibold text-sm text-[#f5f5f5]">Unlock Premium Access</h3>
             </div>
-            <p className="text-xs text-purple-200/70 mb-3">
+            <p className="text-xs text-[#9a9a9a] mb-3">
               Experience VIP perks, bigger wins, and exclusive features.
             </p>
             <Link
               href="/login"
-              className="block text-center py-2 rounded-lg bg-white/10 text-white text-xs font-semibold hover:bg-white/20 transition-colors border border-white/10"
+              className="block text-center py-2 rounded-lg premium-btn-outline text-xs"
             >
               Login & Access All
             </Link>
           </div>
 
-          <div className="rounded-xl p-4 bg-gradient-to-br from-purple-600/60 to-indigo-950 border border-purple-400/20">
+          <div className="rounded-xl p-4 bg-[#0b0b0b] border border-[rgba(176,0,32,0.25)]">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-5 w-5 text-amber-300" />
-              <h3 className="font-semibold text-sm text-white">New Here?</h3>
+              <Sparkles className="h-5 w-5 text-[#d4af37]" />
+              <h3 className="font-semibold text-sm text-[#f5f5f5]">New Here?</h3>
             </div>
-            <p className="text-xs text-purple-200/70 mb-3">Claim your free account & start playing!</p>
+            <p className="text-xs text-[#9a9a9a] mb-3">Claim your free account & start playing!</p>
             <Link
               href="/register"
-              className="block text-center py-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-gray-900 text-xs font-bold hover:opacity-90 transition-opacity"
+              className="block text-center py-2 rounded-lg premium-btn-gold text-xs"
             >
               Sign Up
             </Link>
@@ -247,16 +256,16 @@ export function HomeSidebar({
       )}
 
       {isLoggedIn && (
-        <div className="rounded-xl p-4 bg-gradient-to-br from-purple-700/80 to-purple-950 border border-purple-500/30">
+        <div className="rounded-xl p-4 bg-[#111111] border border-[rgba(212,175,55,0.2)]">
           <div className="flex items-center gap-2 mb-2">
-            <Crown className="h-5 w-5 text-amber-400" />
-            <h3 className="font-semibold text-sm text-white">Level Up Now</h3>
+            <Crown className="h-5 w-5 text-[#ffd700]" />
+            <h3 className="font-semibold text-sm text-[#f5f5f5]">Level Up Now</h3>
           </div>
-          <p className="text-xs text-purple-200/70 mb-3">Unlock VIP rewards and exclusive perks.</p>
+          <p className="text-xs text-[#9a9a9a] mb-3">Unlock VIP rewards and exclusive perks.</p>
           <Link
             href="/dashboard/vip"
             onTouchStart={() => warmRoute("/dashboard/vip")}
-            className="block text-center py-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-gray-900 text-xs font-bold hover:opacity-90 transition-opacity"
+            className="block text-center py-2 rounded-lg premium-btn-gold text-xs"
           >
             View VIP Status
           </Link>

@@ -378,6 +378,7 @@ export async function adminGrantWallet(
       `$${amount} was added to your ${walletTypeLabel(walletType)} by an admin.`,
       "success"
     );
+    revalidatePath(`/admin/users/${userId}`);
   }
 
   return result;
@@ -400,12 +401,13 @@ async function requireAdmin() {
   return { supabase, error: null };
 }
 
-function revalidateWalletPaths() {
+function revalidateWalletPaths(userId?: string) {
   revalidatePath("/dashboard");
   revalidatePath("/spin");
   revalidatePath("/");
   revalidatePath("/admin/users");
   revalidatePath("/admin/transactions");
+  if (userId) revalidatePath(`/admin/users/${userId}`);
 }
 
 export async function adminDeductWallet(
@@ -434,7 +436,7 @@ export async function adminDeductWallet(
     return { error: error.message };
   }
 
-  revalidateWalletPaths();
+  revalidateWalletPaths(userId);
   return { success: true };
 }
 
@@ -459,6 +461,6 @@ export async function adminResetWallet(
     return { error: error.message };
   }
 
-  revalidateWalletPaths();
+  revalidateWalletPaths(userId);
   return { success: true };
 }

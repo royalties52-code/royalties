@@ -24,14 +24,14 @@ export function htmlToPlainText(html: string): string {
 }
 
 export const PROMO_REPLY_TO =
-  process.env.RESEND_REPLY_TO ?? "support@spinoracasinos.com";
+  process.env.RESEND_REPLY_TO ?? "support@royaltiesonlinecasino.com";
 
 const SETTINGS_URL = `${SITE_URL}/dashboard/settings`;
 
 export function promoEmailHeaders(): Record<string, string> {
   return {
     "List-Unsubscribe": `<${SETTINGS_URL}>, <mailto:${PROMO_REPLY_TO}?subject=unsubscribe>`,
-    "X-Entity-Ref-ID": "spinora-promo",
+    "X-Entity-Ref-ID": "ROYALTIES-promo",
   };
 }
 

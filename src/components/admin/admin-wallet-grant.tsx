@@ -14,9 +14,15 @@ import { toast } from "sonner";
 
 interface AdminWalletGrantProps {
   userId: string;
+  walletBalance?: number;
+  cashoutWallet?: number;
 }
 
-export function AdminWalletGrant({ userId }: AdminWalletGrantProps) {
+export function AdminWalletGrant({
+  userId,
+  walletBalance,
+  cashoutWallet,
+}: AdminWalletGrantProps) {
   const [amount, setAmount] = useState("5");
   const [walletType, setWalletType] = useState<WalletType>("current");
   const [loading, setLoading] = useState<string | null>(null);
@@ -68,49 +74,105 @@ export function AdminWalletGrant({ userId }: AdminWalletGrantProps) {
     setLoading(null);
   }
 
+  const currentForType =
+    walletType === "cashout" ? cashoutWallet : walletBalance;
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-2">
-        <div>
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">Amount</label>
-          <Input
-            type="number"
-            min="0.01"
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-24 h-8 text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">Wallet</label>
-          <select
-            value={walletType}
-            onChange={(e) => setWalletType(e.target.value as WalletType)}
-            className="h-8 rounded-md border border-border bg-background px-2 text-sm"
-          >
-            <option value="current">Total Deposit</option>
-            <option value="cashout">Deposit Redeem</option>
-          </select>
-        </div>
-        <Button size="sm" variant="outline" onClick={handleGrant} disabled={!!loading}>
-          {loading === "grant" ? "..." : "Grant $"}
-        </Button>
-        <Button size="sm" variant="destructive" onClick={handleResetByAmount} disabled={!!loading}>
-          {loading === "reset" ? "..." : parsedAmount > 0 ? `Reset $${parsedAmount}` : "Reset $"}
+    <div className="flex flex-col gap-4">
+      {(walletBalance != null || cashoutWallet != null) && (
+        <dl className="grid grid-cols-2 gap-3 rounded-lg border border-border/60 bg-muted/30 p-3">
+          <div>
+            <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              Total deposit
+            </dt>
+            <dd className="tnum mt-0.5 text-sm font-bold text-ws-gold-deep dark:text-ws-gold">
+              ${(walletBalance ?? 0).toFixed(2)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              Deposit redeem
+            </dt>
+            <dd className="tnum mt-0.5 text-sm font-bold text-ws-emerald">
+              ${(cashoutWallet ?? 0).toFixed(2)}
+            </dd>
+          </div>
+        </dl>
+      )}
+
+      <div className="space-y-2">
+        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          Wallet
+        </label>
+        <select
+          value={walletType}
+          onChange={(e) => setWalletType(e.target.value as WalletType)}
+          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+        >
+          <option value="current">Total Deposit</option>
+          <option value="cashout">Deposit Redeem</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          Amount
+        </label>
+        <Input
+          type="number"
+          min="0.01"
+          step="0.01"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="h-9 text-sm"
+          placeholder="e.g. 25.00"
+        />
+        {currentForType != null && (
+          <p className="text-[11px] text-muted-foreground">
+            Current {label.toLowerCase()}: ${currentForType.toFixed(2)}
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          size="sm"
+          className="flex-1"
+          onClick={handleGrant}
+          disabled={!!loading}
+        >
+          {loading === "grant" ? "Loading…" : "Load balance"}
         </Button>
         <Button
           size="sm"
-          variant="outline"
+          variant="destructive"
+          className="flex-1"
           onClick={handleClearAll}
           disabled={!!loading}
-          className="border-destructive/50 text-destructive hover:bg-destructive/10"
         >
-          {loading === "clear" ? "..." : "Clear all ($0)"}
+          {loading === "clear" ? "Resetting…" : "Reset to $0"}
         </Button>
       </div>
-      <p className="text-[10px] text-muted-foreground">
-        Reset $ removes the entered amount from the wallet. Clear all ($0) wipes the full balance.
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={handleResetByAmount}
+        disabled={!!loading}
+        className="w-full border-destructive/40 text-destructive hover:bg-destructive/10"
+      >
+        {loading === "reset"
+          ? "Resetting…"
+          : parsedAmount > 0
+            ? `Reset $${parsedAmount}`
+            : "Reset amount"}
+      </Button>
+
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <strong className="font-medium text-foreground">Load balance</strong> adds funds.
+        <strong className="font-medium text-foreground"> Reset to $0</strong> clears the full
+        wallet. <strong className="font-medium text-foreground">Reset amount</strong> deducts the
+        entered value only.
       </p>
     </div>
   );

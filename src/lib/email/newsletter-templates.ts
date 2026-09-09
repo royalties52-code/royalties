@@ -1,5 +1,5 @@
 /**
- * Spinora marketing/newsletter emails — promo campaigns via Resend.
+ * ROYALTIES marketing/newsletter emails — promo campaigns via Resend.
  */
 
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
@@ -315,7 +315,7 @@ export function birthdayRewardNewsletter(opts: { siteUrl: string; displayName: s
     html: newsletterShell({
       eyebrow: "Birthday Reward",
       heading: `Happy birthday, ${opts.displayName}.`,
-      subhead: "A gift from the whole WinSweeps table.",
+      subhead: "A gift from the whole Royalties table.",
       stats: [
         { value: "🎁", label: "Bonus" },
         { value: "7 Days", label: "To Claim" },

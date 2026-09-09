@@ -21,9 +21,14 @@ import {
   CHAT_INCOMING_EVENT,
   GAME_REQUEST_EVENT,
   DEPOSIT_REQUEST_EVENT,
+  OPEN_SUPPORT_CHAT_EVENT,
+  clearPendingSupportChatOpen,
+  consumePendingSupportChatOpen,
+  peekPendingSupportChatOpen,
   type ChatIncomingDetail,
   type DepositRequestEventDetail,
   type GameRequestEventDetail,
+  type OpenSupportChatDetail,
 } from "@/lib/chat/events";
 import { getDepositMethod, type DepositPaymentMethodId } from "@/lib/payments/methods";
 import { subscribeToConversationInserts, subscribeToMessageInserts } from "@/lib/chat/subscribe-messages";
@@ -170,7 +175,7 @@ export function MessageRealtimeProvider({ children }: { children: ReactNode }) {
     async (msg: Message, href: string) => {
       const adminView = isAdminRef.current;
 
-      let title = adminView ? "New customer message" : "Spinora Support";
+      let title = adminView ? "New customer message" : "ROYALTIES Support";
 
       if (adminView) {
         const supabase = createClient();
@@ -621,6 +626,60 @@ export function MessageRealtimeProvider({ children }: { children: ReactNode }) {
       supabase.removeChannel(channel);
     };
   }, [isLoggedIn, isAdmin]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    function openQuickChat(conversationId?: string | null) {
+      void unlockMessageNotificationSound();
+      void (async () => {
+        const uid = activeUserId ?? userIdRef.current;
+        if (!uid) return;
+
+        let convId = conversationId ?? quickChatConvId ?? peekPendingSupportChatOpen();
+        if (!convId) {
+          const supabase = createClient();
+          if (supabase) {
+            convId = await ensureUserConversationClient(supabase, uid);
+          }
+          if (!convId) {
+            const ensured = await ensureUserConversation();
+            convId = ensured.conversationId ?? null;
+          }
+        }
+
+        if (!convId) return;
+
+        setQuickChatConvId(convId);
+        setQuickChatOpen(true);
+        clearPendingSupportChatOpen();
+        clearPendingSupportChatOpen();
+      })();
+    }
+
+    function onOpenSupportChat(event: Event) {
+      const detail = (event as CustomEvent<OpenSupportChatDetail>).detail;
+      openQuickChat(detail?.conversationId);
+    }
+
+    const pending = consumePendingSupportChatOpen();
+    if (pending) openQuickChat(pending);
+
+    window.addEventListener(OPEN_SUPPORT_CHAT_EVENT, onOpenSupportChat);
+    return () => window.removeEventListener(OPEN_SUPPORT_CHAT_EVENT, onOpenSupportChat);
+  }, [isLoggedIn, activeUserId, quickChatConvId]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !activeUserId) return;
+    const pending = peekPendingSupportChatOpen();
+    if (!pending) return;
+
+    void unlockMessageNotificationSound();
+    setQuickChatConvId((prev) => prev ?? pending);
+    setQuickChatOpen(true);
+    clearPendingSupportChatOpen();
+    clearPendingSupportChatOpen();
+  }, [isLoggedIn, activeUserId]);
 
   function openActivityPopup() {
     if (!popup) return;

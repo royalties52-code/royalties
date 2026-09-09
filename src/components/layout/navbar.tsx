@@ -3,11 +3,13 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Search, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedLogo } from "@/components/ui/animated-logo";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 
 const NotificationDropdown = dynamic(
   () =>
@@ -35,13 +37,12 @@ const navLinks = [
 ];
 
 type NavbarProps = {
-  /** Homepage: open sidebar drawer on mobile */
   onMenuClick?: () => void;
-  /** Homepage: focus game search */
   onSearchClick?: () => void;
 };
 
 export function Navbar({ onMenuClick, onSearchClick }: NavbarProps = {}) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -64,6 +65,11 @@ export function Navbar({ onMenuClick, onSearchClick }: NavbarProps = {}) {
 
   function closeMobile() {
     setOpen(false);
+  }
+
+  function isNavActive(href: string) {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   const authActions = isLoggedIn ? (
@@ -113,29 +119,35 @@ export function Navbar({ onMenuClick, onSearchClick }: NavbarProps = {}) {
     </>
   );
 
+  const searchBtnClass =
+    "flex items-center justify-center w-9 h-9 rounded-lg border border-[rgba(212,175,55,0.35)] bg-[#111111] text-[#d4af37] hover:bg-[#161616] hover:shadow-[0_0_16px_rgba(212,175,55,0.2)] transition-all shrink-0";
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
+    <header className="fixed top-0 left-0 right-0 z-50 premium-navbar">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-2">
           {onMenuClick && (
             <button
               type="button"
               onClick={onMenuClick}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors shrink-0"
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-[rgba(212,175,55,0.2)] bg-[#111111] text-[#f5f5f5] hover:border-[#d4af37] transition-colors shrink-0"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
           )}
-          <AnimatedLogo textClassName="text-lg" />
+          <AnimatedLogo textClassName="text-base sm:text-lg hidden xs:inline-flex" />
         </div>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
+              className={cn(
+                "premium-nav-link",
+                isNavActive(link.href) && "premium-nav-link--active"
+              )}
             >
               {link.label}
             </Link>
@@ -144,39 +156,40 @@ export function Navbar({ onMenuClick, onSearchClick }: NavbarProps = {}) {
 
         <div className="hidden md:flex items-center gap-2">
           {onSearchClick && (
-            <button
-              type="button"
-              onClick={onSearchClick}
-              className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-gray-900 hover:opacity-90 transition-opacity"
-              aria-label="Search games"
-            >
+            <button type="button" onClick={onSearchClick} className={searchBtnClass} aria-label="Search games">
               <Search className="h-4 w-4" />
             </button>
           )}
           {authActions}
         </div>
 
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-1.5 sm:gap-2">
           {onSearchClick && (
-            <button
-              type="button"
-              onClick={onSearchClick}
-              className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-gray-900 hover:opacity-90 transition-opacity shrink-0"
-              aria-label="Search games"
-            >
+            <button type="button" onClick={onSearchClick} className={searchBtnClass} aria-label="Search games">
               <Search className="h-4 w-4" />
             </button>
           )}
+          {isLoggedIn ? (
+            <UserAccountMenu compact />
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild className="h-9 px-2.5 text-xs shrink-0">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button size="sm" asChild className="h-9 px-2.5 text-xs shrink-0">
+                <Link href="/register">Join</Link>
+              </Button>
+            </>
+          )}
           {!onMenuClick && (
             <button
-              className="p-2 text-foreground"
+              className="p-2 text-[#f5f5f5] shrink-0"
               onClick={() => setOpen(!open)}
               aria-label="Toggle menu"
             >
               {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           )}
-          {isLoggedIn && <UserAccountMenu compact />}
         </div>
       </nav>
 
@@ -186,20 +199,28 @@ export function Navbar({ onMenuClick, onSearchClick }: NavbarProps = {}) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass border-t border-border"
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-t border-[rgba(212,175,55,0.15)] bg-[#0b0b0b]/98 backdrop-blur-md"
           >
-            <div className="flex flex-col gap-2 p-4">
+            <div className="flex flex-col gap-1 p-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
+                  className={cn(
+                    "px-3 py-2.5 text-sm rounded-lg transition-colors",
+                    isNavActive(link.href)
+                      ? "text-[#ffd700] bg-[rgba(176,0,32,0.15)]"
+                      : "text-[#9a9a9a] hover:text-[#d4af37] hover:bg-[rgba(212,175,55,0.06)]"
+                  )}
                   onClick={closeMobile}
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="flex flex-col gap-2 pt-2 border-t border-border">{mobileAuthActions}</div>
+              <div className="flex flex-col gap-2 pt-3 mt-2 border-t border-[rgba(212,175,55,0.12)]">
+                {mobileAuthActions}
+              </div>
             </div>
           </motion.div>
         )}

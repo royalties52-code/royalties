@@ -12,10 +12,22 @@ const inter = Inter({
   adjustFontFallback: true,
 });
 
-export const metadata: Metadata = homeMetadata;
+export const metadata: Metadata = {
+  ...homeMetadata,
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Royalties",
+    statusBarStyle: "black-translucent",
+  },
+  applicationName: "Royalties",
+  formatDetection: {
+    telephone: false,
+  },
+};
 
 export const viewport: Viewport = {
-  themeColor: "#121212",
+  themeColor: "#050505",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -29,8 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WebsiteSchema />
         <HomeGamesItemListSchema />
         <HomeFaqSchema />
-        <link rel="icon" href="/logo.webp" />
-        <link rel="preload" href="/logo.webp" as="image" type="image/webp" />
+        <link rel="icon" href="/logo.jpg" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="preload" href="/logo.jpg" as="image" />
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <ClientProviders>{children}</ClientProviders>

@@ -1,27 +1,27 @@
-export const SITE_NAME = "Spinora";
+export const SITE_NAME = "Royalties";
 
 /** Daily spin wheel is live (win rates capped server-side in prize-engine). */
 export const DAILY_SPIN_ENABLED = true;
 
 /** VIP points awarded per successful referral */
 export const REFERRAL_REWARD_POINTS = 10;
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://spinoracasinos.com";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://royaltiesonlinecasino.com";
 export const SITE_DESCRIPTION =
-  "Spinora is your hub for Juwa casino, Game Vault, slot games, and fish games. Create game accounts fast, claim bonuses, earn VIP rewards, and get 24/7 live support.";
+  "Royalties Online Casino — premium sweepstakes gaming, Juwa, Game Vault, slot games, and fish games. Create game accounts fast, claim bonuses, earn VIP rewards, and get 24/7 live support.";
 
 export const VIP_TIERS = [
   {
     id: "bronze",
     name: "Bronze",
     minPoints: 0,
-    color: "from-amber-700 to-amber-500",
+    color: "from-amber-800 to-amber-600",
     benefits: ["Basic support", "5% referral bonus", "Weekly promotions"],
   },
   {
     id: "silver",
     name: "Silver",
     minPoints: 500,
-    color: "from-slate-400 to-slate-300",
+    color: "from-zinc-400 to-zinc-300",
     benefits: ["Priority support", "10% referral bonus", "Exclusive games access"],
   },
   {
@@ -35,7 +35,7 @@ export const VIP_TIERS = [
     id: "platinum",
     name: "Platinum",
     minPoints: 5000,
-    color: "from-purple-400 to-cyan-400",
+    color: "from-red-500 to-amber-400",
     benefits: ["Dedicated account manager", "25% referral bonus", "Custom rewards"],
   },
 ] as const;
@@ -64,7 +64,7 @@ export const PUBLIC_ROUTES = [
   { path: "/register", priority: 0.5 },
 ] as const;
 
-/** Official Spinora social profile URLs — used in footer, tasks, and share buttons */
+/** Official Royalties social profile URLs — used in footer, tasks, and share buttons */
 export const SOCIAL_LINKS = {
   telegram:
     process.env.NEXT_PUBLIC_TELEGRAM_URL ||
@@ -74,9 +74,9 @@ export const SOCIAL_LINKS = {
     "https://www.facebook.com/share/19ea1cSC5W/",
   instagram:
     process.env.NEXT_PUBLIC_INSTAGRAM_URL ||
-    "https://www.instagram.com/spinora09?igsh=MXhtM3gxZmRlNnR5Zw==",
+    "https://www.instagram.com/royaltiesonlinecasino",
   tiktok:
     process.env.NEXT_PUBLIC_TIKTOK_URL ||
-    "https://www.tiktok.com/@spinora09",
+    "https://www.tiktok.com/@royaltiesonlinecasino",
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_URL || "https://wa.me/1234567890",
 } as const;

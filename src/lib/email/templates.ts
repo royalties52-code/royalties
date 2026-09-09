@@ -1,15 +1,15 @@
 /**
  * Branded transactional email templates (inline-styled HTML for client
- * compatibility). WinSweeps dark luxury palette baked in as literals since
- * email clients don't read CSS variables.
+ * compatibility). Royalties black / gold / red palette.
  */
 
-const BG = "#060606";
-const SURFACE = "#0f1115";
-const GOLD = "#f5c542";
-const TEXT = "#f4f1ea";
-const MUTED = "#a8a29a";
-const BORDER = "rgba(255,255,255,0.08)";
+const BG = "#050505";
+const SURFACE = "#0f0f0f";
+const GOLD = "#d4af37";
+const RED = "#b91c1c";
+const TEXT = "#f5f0e6";
+const MUTED = "#a8a29e";
+const BORDER = "rgba(212, 175, 55, 0.15)";
 
 function shell(opts: { heading: string; body: string; cta?: { label: string; href: string } }) {
   return `<!doctype html>
@@ -19,7 +19,7 @@ function shell(opts: { heading: string; body: string; cta?: { label: string; hre
       <tr><td align="center">
         <table role="presentation" width="100%" style="max-width:520px;background:${SURFACE};border:1px solid ${BORDER};border-radius:16px;overflow:hidden;">
           <tr><td style="padding:32px 32px 0;">
-            <p style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.02em;color:${GOLD};">WinSweeps</p>
+            <p style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.02em;color:${GOLD};">Royalties</p>
           </td></tr>
           <tr><td style="padding:24px 32px 8px;">
             <h1 style="margin:0;font-size:24px;font-weight:700;color:${TEXT};">${opts.heading}</h1>
@@ -35,10 +35,10 @@ function shell(opts: { heading: string; body: string; cta?: { label: string; hre
               : ""
           }
           <tr><td style="padding:24px 32px;border-top:1px solid ${BORDER};">
-            <p style="margin:0;font-size:12px;color:${MUTED};">You're receiving this because you have a WinSweeps account. Manage your email preferences in your dashboard settings.</p>
+            <p style="margin:0;font-size:12px;color:${MUTED};">You're receiving this because you have a Royalties Online Casino account. Manage your email preferences in your dashboard settings.</p>
           </td></tr>
         </table>
-        <p style="margin:16px 0 0;font-size:11px;color:${MUTED};">© ${new Date().getFullYear()} WinSweeps · Immersive Social Gaming Excellence</p>
+        <p style="margin:16px 0 0;font-size:11px;color:${MUTED};">© ${new Date().getFullYear()} Royalties Online Casino · Premium Gaming Excellence</p>
       </td></tr>
     </table>
   </body>
@@ -47,7 +47,7 @@ function shell(opts: { heading: string; body: string; cta?: { label: string; hre
 
 export function welcomeEmail(opts: { displayName: string; siteUrl: string }) {
   return {
-    subject: "Welcome to WinSweeps — your vault is open",
+    subject: "Welcome to Royalties — your vault is open",
     html: shell({
       heading: `Welcome, ${opts.displayName}.`,
       body: "Your account is verified and your welcome bonus is waiting in the vault. Claim your daily reward, build a streak and climb the VIP tiers.",

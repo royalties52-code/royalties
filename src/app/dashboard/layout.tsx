@@ -37,7 +37,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <DashboardRoutePrefetch />
       <Suspense fallback={null}>
         <DashboardShell sidebar={sidebar}>
-          {needsPhone && email && !email.endsWith("@phone.spinora.local") && (
+          {needsPhone && email && !email.endsWith("@phone.ROYALTIES.local") && (
             <CompleteProfilePrompt email={email} fullName={profile?.full_name} />
           )}
           {children}

@@ -130,7 +130,10 @@ export function GameSlider() {
   }
 
   return (
-    <section ref={sectionRef} className="game-slider-wrap py-1" aria-label="Featured games slider">
+    <section ref={sectionRef} className="game-slider-wrap py-2" aria-label="Featured games slider">
+      <div className="mb-4">
+        <h2 className="premium-section-title">Featured Games</h2>
+      </div>
       <div
         ref={scrollRef}
         className={cn(
@@ -158,6 +161,7 @@ export function GameSlider() {
             key={`${game.id}-${i}`}
             game={game}
             variant="slider"
+            featured={i < availableGames.length && i < 4}
             eager={i < 3}
             className={!autoScroll ? "snap-start" : undefined}
           />

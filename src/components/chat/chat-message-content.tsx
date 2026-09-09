@@ -5,6 +5,7 @@ import { FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getChatAttachmentSignedUrl } from "@/lib/chat/attachments";
 import type { Message } from "@/types/database";
+import { royaltiesBrandText } from "@/lib/chat/royalties-brand-text";
 
 interface ChatMessageContentProps {
   message: Message;
@@ -69,6 +70,7 @@ function ChatAttachmentPreview({
 export function ChatMessageContent({ message }: ChatMessageContentProps) {
   const hasText = Boolean(message.content?.trim());
   const hasAttachment = Boolean(message.attachment_url && message.attachment_type);
+  const displayContent = message.content ? royaltiesBrandText(message.content) : "";
 
   return (
     <>
@@ -79,7 +81,17 @@ export function ChatMessageContent({ message }: ChatMessageContentProps) {
           name={message.attachment_name ?? "Attachment"}
         />
       )}
-      {hasText && <p className={hasAttachment ? "mt-2" : undefined}>{message.content}</p>}
+      {hasText && (
+        <p
+          className={
+            hasAttachment
+              ? "mt-2 whitespace-pre-wrap leading-relaxed text-[13px] sm:text-sm"
+              : "whitespace-pre-wrap leading-relaxed text-[13px] sm:text-sm"
+          }
+        >
+          {displayContent}
+        </p>
+      )}
     </>
   );
 }

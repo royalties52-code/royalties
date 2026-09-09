@@ -9,7 +9,7 @@ import {
   getWalletData,
 } from "@/lib/data/dashboard";
 
-export const metadata: Metadata = { title: "My Games | Spinora" };
+export const metadata: Metadata = { title: "My Games | ROYALTIES" };
 
 export default async function DashboardGamesPage() {
   const [accounts, wallet, creatableGames, activeJobs] = await Promise.all([

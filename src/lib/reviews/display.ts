@@ -12,12 +12,12 @@ export function formatReviewDisplayName(review: ReviewWithAuthor): string {
   }
 
   const email = review.author?.email ?? "";
-  if (email && !email.endsWith("@phone.spinora.local")) {
+  if (email && !email.endsWith("@phone.ROYALTIES.local")) {
     const local = email.split("@")[0];
     return local.charAt(0).toUpperCase() + local.slice(1);
   }
 
-  return "Spinora Player";
+  return "ROYALTIES Player";
 }
 
 export function formatReviewVipTier(review: ReviewWithAuthor): string {

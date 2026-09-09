@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createNotification } from "@/lib/actions/notifications";
+import { maybeReplyWithSupportBot } from "@/lib/chat/support-bot";
 import { notifyAdminOfCustomerMessage } from "@/lib/telegram/notify-admin-message";
 
 export async function POST(request: Request) {
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
     content?: string;
     attachmentType?: "image" | "file" | null;
     kind?: "user" | "admin";
+    supportMode?: "bot" | "agent";
   };
 
   try {
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const { conversationId, content = "", attachmentType = null, kind } = body;
+  const { conversationId, content = "", attachmentType = null, kind, supportMode = "bot" } = body;
   if (!conversationId || !kind) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
@@ -89,12 +91,33 @@ export async function POST(request: Request) {
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversationId);
 
-    void notifyAdminOfCustomerMessage({
-      conversationId,
-      senderId: user.id,
-      content,
-      attachmentType,
-    });
+    const preferAgent = supportMode === "agent";
+
+    // Must await — fire-and-forget is killed on Vercel after the response is sent.
+    if (preferAgent) {
+      await notifyAdminOfCustomerMessage({
+        conversationId,
+        senderId: user.id,
+        content,
+        attachmentType,
+      });
+    } else {
+      const botResult = await maybeReplyWithSupportBot({
+        conversationId,
+        customerId: user.id,
+        content,
+        attachmentType,
+      });
+
+      if (!botResult.replied) {
+        await notifyAdminOfCustomerMessage({
+          conversationId,
+          senderId: user.id,
+          content,
+          attachmentType,
+        });
+      }
+    }
   }
 
   return NextResponse.json({ ok: true });

@@ -6,53 +6,57 @@ import { SITE_NAME, DAILY_SPIN_ENABLED } from "@/lib/constants";
 export function HeroStatic() {
   return (
     <section className="relative pb-4" aria-label="Welcome">
-      <div className="casino-hero-banner relative w-full overflow-hidden rounded-2xl min-h-[260px] sm:min-h-[300px] lg:min-h-[340px]">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a0a2e] via-[#0d0318] to-[#1a1008]" />
-        <div className="absolute inset-0 casino-hero-cave opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 via-transparent to-amber-900/20" />
+      <div className="casino-hero-banner relative w-full overflow-hidden rounded-2xl min-h-[280px] sm:min-h-[320px] lg:min-h-[360px]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0b0b0b] to-[#050505]" />
+        <div className="absolute inset-0 casino-hero-cave opacity-90" />
 
-        <div className="relative z-10 grid lg:grid-cols-2 gap-6 items-center h-full px-6 sm:px-10 py-10 sm:py-12">
-          <div className="text-left">
-            <p className="text-white/90 italic text-lg sm:text-xl mb-1 font-light">
-              Craving Action?
+        <div className="relative z-10 grid lg:grid-cols-2 gap-8 items-center h-full px-6 sm:px-10 py-10 sm:py-14">
+          <div className="text-left max-w-xl">
+            <p className="text-[#9a9a9a] text-xs sm:text-sm uppercase tracking-[0.2em] mb-3 font-medium">
+              Premium Online Gaming
             </p>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white italic leading-tight mb-1">
-              {SITE_NAME} games deliver nonstop casino
+            <h1 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold leading-tight mb-3">
+              <span className="text-[#f5f5f5]">ENTER THE WORLD OF </span>
+              <span className="gradient-text drop-shadow-[0_0_24px_rgba(212,175,55,0.25)]">
+                {SITE_NAME.toUpperCase()}
+              </span>
             </h1>
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold italic text-amber-400 mb-6">
-              Experience
+            <p className="text-sm sm:text-base text-[#9a9a9a] mb-8 max-w-md leading-relaxed">
+              One wallet. Twelve premium games. Instant accounts, VIP rewards, and 24/7 live support.
             </p>
-            {DAILY_SPIN_ENABLED ? (
-              <Link href="/spin" className="spin-now-btn inline-block">
-                SPIN NOW
+            <div className="flex flex-wrap gap-3">
+              {DAILY_SPIN_ENABLED ? (
+                <Link href="/spin" className="spin-now-btn">
+                  SPIN NOW
+                </Link>
+              ) : null}
+              <Link href="/register" className="premium-btn-outline text-sm">
+                GET STARTED
               </Link>
-            ) : (
-              <Link
-                href="/spin"
-                className="inline-flex items-center gap-2 rounded-xl border border-purple-500/40 bg-purple-500/10 px-6 py-3 text-sm font-bold text-purple-200 hover:bg-purple-500/20 transition-colors"
-              >
-                Daily Spin — Coming Soon
+              <Link href="/games" className="premium-btn-outline text-sm hidden sm:inline-flex">
+                BROWSE GAMES
               </Link>
-            )}
+            </div>
           </div>
 
-          <div className="relative flex items-center justify-center min-h-[200px] lg:min-h-[260px]">
+          <div className="relative flex items-center justify-center min-h-[200px] lg:min-h-[280px]">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-amber-500/15 blur-3xl slot-glow" />
+              <div className="w-52 h-52 sm:w-64 sm:h-64 rounded-full bg-[#b00020]/10 blur-3xl" />
+              <div className="absolute w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-[#d4af37]/10 blur-2xl" />
             </div>
             <Link
               href="/spin"
-              className="relative block w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] lg:w-[200px] lg:h-[200px] shrink-0"
-              aria-label={`${SITE_NAME} — Spin now`}
+              className="relative block w-[150px] h-[150px] sm:w-[190px] sm:h-[190px] lg:w-[220px] lg:h-[220px] shrink-0"
+              aria-label={`${SITE_NAME} — spin now`}
             >
               <Image
-                src="/logo.webp"
+                src="/logo.jpg"
                 alt={SITE_NAME}
                 fill
                 priority
                 fetchPriority="high"
-                sizes="(max-width: 640px) 140px, 200px"
-                className="rounded-full object-cover shadow-[0_0_40px_rgba(251,191,36,0.45)]"
+                sizes="(max-width: 640px) 150px, 220px"
+                className="rounded-2xl object-contain shadow-[0_0_48px_rgba(212,175,55,0.35)]"
               />
             </Link>
           </div>

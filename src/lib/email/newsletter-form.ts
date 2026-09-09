@@ -2,7 +2,7 @@ import type { NewsletterCampaign } from "@/lib/database.types";
 import type { NewsletterVibe } from "@/lib/email/newsletter-templates";
 import { presetToSimpleForm } from "@/lib/email/newsletter-presets";
 
-const DEFAULT_CTA_HREF = "https://spinoracasinos.com/promotions";
+const DEFAULT_CTA_HREF = "https://royaltiesonlinecasino.com/promotions";
 
 export type SimpleNewsletterInput = {
   template_id: string;
@@ -32,7 +32,7 @@ export function campaignToSimpleForm(c?: NewsletterCampaign): SimpleNewsletterIn
     vibe: "gold",
     name: c.name ?? "",
     subject: c.subject ?? "",
-    eyebrow: c.eyebrow ?? "Spinora",
+    eyebrow: c.eyebrow ?? "ROYALTIES",
     heading: c.heading ?? "",
     subhead: c.subhead ?? "",
     message: (c.body ?? "").replace(/<br\s*\/?>/gi, "\n"),
@@ -56,7 +56,7 @@ export function simpleFormToCampaignPayload(v: SimpleNewsletterInput) {
   return {
     name: v.name.trim() || subject,
     subject,
-    eyebrow: v.eyebrow.trim() || "Spinora",
+    eyebrow: v.eyebrow.trim() || "ROYALTIES",
     heading,
     subhead: v.subhead.trim(),
     body: message.replace(/\n/g, "<br>"),

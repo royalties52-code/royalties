@@ -59,8 +59,8 @@ export function AdminSidebar({
                       className={cn(
                         "flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
                         active
-                          ? "bg-ws-green/12 text-ws-green-deep dark:text-ws-green"
-                          : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                          ? "bg-[rgba(176,0,32,0.2)] text-[#ffd700] border-[rgba(212,175,55,0.35)]"
+                          : "text-[#9a9a9a] hover:bg-[rgba(212,175,55,0.06)] hover:text-[#d4af37]"
                       )}
                     >
                       <AdminIcon name={item.icon} className="size-4.5 shrink-0" />

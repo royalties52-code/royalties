@@ -69,7 +69,19 @@ create policy "attachments owner write" on storage.objects
 
 -- ── Realtime ─────────────────────────────────────────────────────────────────
 
-alter publication supabase_realtime add table public.notifications;
+-- Realtime (notifications already added in schema.sql; safe to re-run)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+      AND schemaname = 'public'
+      AND tablename = 'notifications'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
+  END IF;
+END $$;
 
 -- ── Attach the signup pipeline now that all referenced tables exist ──────────
 
@@ -80,7 +92,8 @@ create trigger on_auth_user_created
 
 -- ── Grants: views & RPC surface for API roles ────────────────────────────────
 
-grant select on public.public_profiles to anon, authenticated;
+-- Spinora uses public_profiles_by_ids / public_profiles_top (see 16-public-profiles-spinora.sql)
+-- instead of the WinSweeps public_profiles view.
 
 grant execute on function public.claim_reward(text) to authenticated;
 grant execute on function public.claim_promotion(text, text) to authenticated;

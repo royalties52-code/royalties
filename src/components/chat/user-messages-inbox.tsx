@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { uploadChatAttachment } from "@/lib/chat/attachments";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { ChatMessageContent } from "@/components/chat/chat-message-content";
+import { SupportChatModeBar } from "@/components/chat/support-chat-mode-bar";
 import { MobileChatShell, useMobileChatClose } from "@/components/chat/mobile-chat-shell";
 import { UnreadBadge } from "@/components/ui/unread-badge";
 import {
@@ -34,6 +35,14 @@ import { subscribeToConversationInserts, subscribeToMessageInserts } from "@/lib
 import { toast } from "sonner";
 import { ArrowLeft, Headphones, MessageCircle } from "lucide-react";
 import type { Message } from "@/types/database";
+import { useSupportChatMode } from "@/lib/chat/use-support-chat-mode";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import {
+  composerPlaceholder,
+  supportModeHint,
+  supportModeLabel,
+  type SupportChatMode,
+} from "@/lib/chat/support-mode";
 
 interface UserChatPanelProps {
   showMobileBack?: boolean;
@@ -48,6 +57,8 @@ interface UserChatPanelProps {
   loading: boolean;
   scrollRef: RefObject<HTMLDivElement | null>;
   onScrollMessages?: () => void;
+  supportMode: SupportChatMode;
+  onSupportModeChange: (mode: SupportChatMode) => void;
 }
 
 function UserChatPanel({
@@ -63,6 +74,8 @@ function UserChatPanel({
   loading,
   scrollRef,
   onScrollMessages,
+  supportMode,
+  onSupportModeChange,
 }: UserChatPanelProps) {
   const closeViaBack = useMobileChatClose();
 
@@ -104,12 +117,25 @@ function UserChatPanel({
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="font-semibold text-white truncate">{selectedConversation.title}</h2>
-          <p className="text-xs text-muted-foreground truncate">{selectedConversation.subtitle}</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {supportModeLabel(supportMode)} · {supportModeHint(supportMode)}
+          </p>
         </div>
-        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shrink-0">
-          Live
+        <Badge
+          className={cn(
+            "shrink-0 hidden sm:inline-flex",
+            supportMode === "agent"
+              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+              : "bg-orange-500/20 text-orange-300 border-orange-500/30"
+          )}
+        >
+          {supportMode === "agent" ? "Agent" : "Bot"}
         </Badge>
       </div>
+
+      {showMobileBack && (
+        <SupportChatModeBar className="rounded-none border-x-0 border-t-0 shrink-0" />
+      )}
 
       <div
         ref={scrollRef}
@@ -156,7 +182,7 @@ function UserChatPanel({
         onSend={onSend}
         loading={loading}
         disabled={!selectedId}
-        placeholder="Type a message..."
+        placeholder={composerPlaceholder(supportMode)}
         showSendLabel
         className="bg-[#121212] border-white/10 shrink-0"
       />
@@ -190,6 +216,8 @@ export function UserMessagesInbox({
   const scrollRef = useRef<HTMLDivElement>(null);
   const supabase = useMemo(() => createClient(), []);
   const { refresh: refreshUnread } = useUnreadMessages();
+  const { mode: supportMode, setMode: setSupportMode } = useSupportChatMode();
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const mobileChatOpenRef = useRef(mobileChatOpen);
   const selectedIdRef = useRef<string | null>(null);
   const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -204,6 +232,10 @@ export function UserMessagesInbox({
     await ensureUserConversation();
     const list = await getUserConversations();
     setConversations(list);
+    if (!selectedIdRef.current && list.length > 0) {
+      setSelectedId(list[0]!.id);
+      selectedIdRef.current = list[0]!.id;
+    }
     return list;
   }, []);
 
@@ -269,6 +301,10 @@ export function UserMessagesInbox({
       if (result.selectedConversationId) {
         setSelectedId(result.selectedConversationId);
         selectedIdRef.current = result.selectedConversationId;
+      } else if ((result.conversations?.length ?? 0) > 0) {
+        const firstId = result.conversations![0]!.id;
+        setSelectedId(firstId);
+        selectedIdRef.current = firstId;
       }
       setMessages(result.messages ?? []);
       void refreshUnread();
@@ -286,6 +322,12 @@ export function UserMessagesInbox({
   useEffect(() => {
     init();
   }, [init]);
+
+  useEffect(() => {
+    if (selectedId && isMobile) {
+      setMobileChatOpen(true);
+    }
+  }, [selectedId, isMobile]);
 
   const openConversation = useCallback(
     async (convId: string) => {
@@ -438,6 +480,7 @@ export function UserMessagesInbox({
       content,
       attachment,
       kind: "user",
+      supportMode,
     });
     if (result.error) {
       toast.error(result.error);
@@ -466,6 +509,8 @@ export function UserMessagesInbox({
     loading,
     scrollRef,
     onScrollMessages,
+    supportMode,
+    onSupportModeChange: setSupportMode,
   };
 
   if (initLoading) {

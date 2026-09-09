@@ -294,7 +294,7 @@ export function ChatContainer({
                   {firstOfRun && (
                     <p className="mb-1 text-[11px] font-semibold text-muted-foreground">
                       {msg.is_staff
-                        ? "WinSweeps Support"
+                        ? "Royalties Support"
                         : perspective === "player"
                         ? "You"
                         : "Member"}

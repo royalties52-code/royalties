@@ -20,7 +20,7 @@ function profileNameStem(profile: {
 
   if (!base && profile.email) {
     const local = profile.email.split("@")[0] ?? "";
-    if (!local.endsWith("@phone.spinora.local")) {
+    if (!local.endsWith("@phone.ROYALTIES.local")) {
       base = local.toLowerCase().replace(/[^a-z0-9_]/g, "");
     }
   }

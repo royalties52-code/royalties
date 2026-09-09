@@ -1,7 +1,7 @@
 "use client";
 
-const STORAGE_KEY = "spinora_device_id";
-const COOKIE_KEY = "spinora_did";
+const STORAGE_KEY = "ROYALTIES_device_id";
+const COOKIE_KEY = "ROYALTIES_did";
 
 async function sha256(input: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));

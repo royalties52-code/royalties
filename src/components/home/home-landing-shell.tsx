@@ -154,8 +154,8 @@ export function HomeLandingShell({
               className={cn(
                 "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap shrink-0 border transition-colors",
                 useSidebarFilter && sidebarTab === id
-                  ? "bg-white/10 border-orange-500/50 text-white"
-                  : "bg-[#1e1e1e] border-white/5 text-muted-foreground"
+                  ? "bg-[rgba(176,0,32,0.18)] border-[#d4af37] text-[#ffd700]"
+                  : "bg-[#111111] border-[rgba(212,175,55,0.12)] text-[#9a9a9a]"
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -166,35 +166,35 @@ export function HomeLandingShell({
 
         <section ref={gamesRef} id="games" className="scroll-mt-24">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex gap-6 border-b border-white/10 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-6 border-b border-[rgba(212,175,55,0.15)] overflow-x-auto scrollbar-hide">
               {MAIN_TABS.map((t) => (
                 <button
                   key={t.id}
                   type="button"
                   onClick={() => handleMainTab(t.id)}
                   className={cn(
-                    "pb-3 text-sm font-medium whitespace-nowrap transition-colors relative",
+                    "pb-3 text-sm font-semibold whitespace-nowrap transition-colors relative",
                     !useSidebarFilter && mainTab === t.id
-                      ? "text-white"
-                      : "text-muted-foreground hover:text-white"
+                      ? "text-[#ffd700]"
+                      : "text-[#9a9a9a] hover:text-[#d4af37]"
                   )}
                 >
                   {t.label}
                   {!useSidebarFilter && mainTab === t.id && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#b00020] to-[#e50914] rounded-full" />
                   )}
                 </button>
               ))}
             </div>
 
             <div className="relative w-full sm:w-56 shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9a9a9a]" />
               <Input
                 ref={searchRef}
                 placeholder="Search games..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 bg-[#1e1e1e] border-white/10 h-9 text-sm"
+                className="pl-10 h-9 text-sm"
               />
             </div>
           </div>

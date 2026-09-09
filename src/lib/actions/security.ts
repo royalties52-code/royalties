@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-const DEVICE_COOKIE = "spinora_did";
+const DEVICE_COOKIE = "ROYALTIES_did";
 
 function getClientIp(h: Headers): string {
   return (

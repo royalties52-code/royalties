@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Contact | Spinora",
-  description: "Reach Spinora support for deposits, game accounts, and VIP questions.",
+  title: "Contact | ROYALTIES",
+  description: "Reach ROYALTIES support for deposits, game accounts, and VIP questions.",
   alternates: { canonical: "/contact" },
 };
 
@@ -24,7 +24,7 @@ export default function ContactPage() {
 
           <div className="mb-12 max-w-2xl">
             <h1 className="text-4xl font-bold mb-4">
-              Contact <span className="gradient-text">Spinora</span>
+              Contact <span className="gradient-text">ROYALTIES</span>
             </h1>
             <p className="text-muted-foreground text-lg">
               24/7 support for deposits, game accounts, and VIP questions.
@@ -34,7 +34,7 @@ export default function ContactPage() {
           <div className="grid sm:grid-cols-3 gap-6 mb-12">
             {[
               { icon: MessageCircle, title: "Live Chat", desc: "Signed in? Open messages from your dashboard.", action: "Open Messages", href: "/dashboard/messages" },
-              { icon: Mail, title: "Email", desc: "support@spinoracasinos.com", action: "Send Email", href: "mailto:support@spinoracasinos.com" },
+              { icon: Mail, title: "Email", desc: "support@royaltiesonlinecasino.com", action: "Send Email", href: "mailto:support@royaltiesonlinecasino.com" },
               { icon: Clock, title: "Response Time", desc: "Average response under 5 minutes.", action: "Help Center", href: "/support" },
             ].map(({ icon: Icon, title, desc, action, href }) => (
               <Card key={title} className="hover:glow-purple transition-all">

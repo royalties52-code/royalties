@@ -11,7 +11,7 @@ const values = [
   { icon: Shield, title: "Trusted & Secure", description: "Your accounts and data are protected with enterprise-grade security and encrypted communications." },
   { icon: Headphones, title: "24/7 Support", description: "Our expert support team is available around the clock via live chat to assist with any questions." },
   { icon: Zap, title: "Fast Setup", description: "Get your game accounts set up quickly with our streamlined request and approval process." },
-  { icon: Users, title: "Community Driven", description: "Join thousands of players who trust Spinora for premium gaming support and VIP rewards." },
+  { icon: Users, title: "Community Driven", description: "Join thousands of players who trust ROYALTIES for premium gaming support and VIP rewards." },
 ];
 
 export default function AboutPage() {
@@ -24,10 +24,10 @@ export default function AboutPage() {
 
           <div className="mb-16">
             <h1 className="text-4xl font-bold mb-4">
-              About <span className="gradient-text">Spinora</span>
+              About <span className="gradient-text">ROYALTIES</span>
             </h1>
             <p className="text-muted-foreground max-w-3xl text-lg leading-relaxed">
-              Spinora is a premium gaming support and account platform built for players who demand the best. We provide instant access to popular gaming platforms, VIP reward programs, and dedicated 24/7 live chat support.
+              ROYALTIES is a premium gaming support and account platform built for players who demand the best. We provide instant access to popular gaming platforms, VIP reward programs, and dedicated 24/7 live chat support.
             </p>
           </div>
 
@@ -52,7 +52,7 @@ export default function AboutPage() {
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
               <p className="text-muted-foreground leading-relaxed">
-                We believe every gamer deserves premium support and seamless access to their favorite platforms. Spinora was founded to bridge the gap between players and gaming platforms, offering a trusted, transparent, and rewarding experience. From account requests to VIP perks and referral bonuses, we are committed to elevating your gaming journey.
+                We believe every gamer deserves premium support and seamless access to their favorite platforms. ROYALTIES was founded to bridge the gap between players and gaming platforms, offering a trusted, transparent, and rewarding experience. From account requests to VIP perks and referral bonuses, we are committed to elevating your gaming journey.
               </p>
             </CardContent>
           </Card>

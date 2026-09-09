@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Ban, Loader2, ShieldCheck, Sparkles, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
+import { AdminWalletGrant } from "@/components/admin/admin-wallet-grant";
 import { ConfirmActionButton } from "@/components/admin/confirm-action-button";
 import { GlassCard } from "@/components/shared/glass-card";
 import { Button } from "@/components/ui/button";
@@ -172,6 +173,23 @@ export function UserManagementPanel({
             </dd>
           </div>
         </dl>
+
+        <div className="mt-5 rounded-lg border border-border/60 bg-muted/20 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Quick wallet controls
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Load balance or reset a member&apos;s deposit wallets without a reason note.
+          </p>
+          <div className="mt-4">
+            <AdminWalletGrant
+              userId={userId}
+              walletBalance={walletBalance}
+              cashoutWallet={cashoutWallet}
+            />
+          </div>
+        </div>
+
         <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="mt-4">

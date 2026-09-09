@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/data/dashboard";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Activity | Spinora" };
+export const metadata: Metadata = { title: "Activity | ROYALTIES" };
 
 const PAGE_SIZE = 25;
 

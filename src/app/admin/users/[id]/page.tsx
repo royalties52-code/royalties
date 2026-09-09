@@ -18,7 +18,7 @@ import {
   profileInitials,
   profileIsBanned,
   profileNum,
-  type SpinoraProfileRow,
+  type ROYALTIESProfileRow,
 } from "@/lib/admin/spinora-profile";
 import { requirePermission, can } from "@/lib/data/admin";
 import type { VipTierKey } from "@/lib/database.types";
@@ -69,12 +69,12 @@ export default async function AdminUserDetailPage({
     .maybeSingle();
 
   if (!profile) notFound();
-  const p = profile as SpinoraProfileRow;
+  const p = profile as ROYALTIESProfileRow;
 
   const { data: authUser } = await db.auth.admin.getUserById(id);
   const email = authUser?.user?.email ?? p.email ?? null;
 
-  const [rolesRes, userRolesRes, vipRes, ledgerRes, spinoraDepositsRes, winDepositsRes, ticketsRes] = await Promise.all([
+  const [rolesRes, userRolesRes, vipRes, ledgerRes, ROYALTIESDepositsRes, winDepositsRes, ticketsRes] = await Promise.all([
     db.from("roles").select("key, name").order("key"),
     db.from("user_roles").select("roles(key)").eq("user_id", id),
     db.from("vip_status").select("vip_tiers(key, name)").eq("user_id", id).maybeSingle(),
@@ -107,7 +107,7 @@ export default async function AdminUserDetailPage({
     .filter((k): k is string => Boolean(k));
   const vipTier = (vipRes.data?.vip_tiers as unknown as { key: VipTierKey } | null)?.key;
   const ledger = ledgerRes.data ?? [];
-  const spinoraDeposits = spinoraDepositsRes.data ?? [];
+  const ROYALTIESDeposits = ROYALTIESDepositsRes.data ?? [];
   const deposits = (winDepositsRes.data ?? []) as unknown as Array<{
     id: string; reference_code: string; request_type: string;
     deposit_amount: number; payment_method: string; status: string;
@@ -343,13 +343,13 @@ export default async function AdminUserDetailPage({
 
         {/* ── Deposits tab ── */}
         <TabsContent value="deposits">
-          {spinoraDeposits.length === 0 && deposits.length === 0 ? (
+          {ROYALTIESDeposits.length === 0 && deposits.length === 0 ? (
             <GlassCard className="py-10 text-center text-sm text-muted-foreground">
               No deposit requests found for this player.
             </GlassCard>
           ) : (
             <div className="space-y-3">
-              {spinoraDeposits.map((dep) => (
+              {ROYALTIESDeposits.map((dep) => (
                 <GlassCard key={dep.id} className="p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">

@@ -7,16 +7,18 @@ import { cn } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/constants";
 
 const LETTERS = [
-  { char: "S", accent: false },
-  { char: "P", accent: false },
-  { char: "I", accent: false },
-  { char: "N", accent: false },
-  { char: "O", accent: true },
-  { char: "R", accent: true },
-  { char: "A", accent: true },
+  { char: "R", accent: false },
+  { char: "O", accent: false },
+  { char: "Y", accent: false },
+  { char: "A", accent: false },
+  { char: "L", accent: true },
+  { char: "T", accent: true },
+  { char: "I", accent: true },
+  { char: "E", accent: true },
+  { char: "S", accent: true },
 ];
 
-const LETTER_DELAY = 0.1;
+const LETTER_DELAY = 0.08;
 
 interface AnimatedLogoProps {
   showImage?: boolean;
@@ -37,7 +39,7 @@ function LogoText({
     <span
       key={replayKey}
       className={cn(
-        "animated-logo-text inline-flex overflow-hidden font-black tracking-tight select-none",
+        "animated-logo-text inline-flex overflow-hidden font-black tracking-tight select-none uppercase",
         textClassName
       )}
       aria-label={SITE_NAME}
@@ -47,7 +49,7 @@ function LogoText({
           key={`${replayKey}-${letter.char}-${i}`}
           className={cn(
             "animated-logo-letter",
-            letter.accent && "animated-logo-letter-ora"
+            letter.accent && "animated-logo-letter-gold"
           )}
           style={{ animationDelay: `${i * LETTER_DELAY}s` }}
         >
@@ -60,7 +62,7 @@ function LogoText({
 
 export function AnimatedLogo({
   showImage = true,
-  imageSize = 36,
+  imageSize = 40,
   textClassName,
   className,
   href = "/",
@@ -83,11 +85,11 @@ export function AnimatedLogo({
     >
       {showImage && (
         <Image
-          src="/logo.webp"
+          src="/logo.jpg"
           alt={SITE_NAME}
           width={imageSize}
           height={imageSize}
-          className="animated-logo-image rounded-lg shrink-0"
+          className="animated-logo-image rounded-md shrink-0 object-contain"
           priority
         />
       )}

@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { syncProfileFromAuthMetadata } from "@/lib/actions/auth";
 import { linkSignupSecurity } from "@/lib/actions/security";
+import { maybeSendBotWelcome } from "@/lib/chat/support-bot";
 
 function resolveRedirect(request: NextRequest, type: EmailOtpType | null) {
   const { searchParams } = new URL(request.url);
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
   if (type === "signup") {
     destUrl.searchParams.set("verified", "1");
   }
+  destUrl.searchParams.set("welcome", "1");
 
   let response = NextResponse.redirect(destUrl);
 
@@ -120,6 +122,17 @@ export async function GET(request: NextRequest) {
         }
       }
     }
+  }
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await maybeSendBotWelcome({ customerId: user.id });
+    }
+  } catch (err) {
+    console.warn("[auth callback] bot welcome failed:", err);
   }
 
   return response;

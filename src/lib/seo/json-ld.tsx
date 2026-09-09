@@ -25,7 +25,7 @@ export function OrganizationSchema() {
         "@type": "Organization",
         name: SITE_NAME,
         url: SITE_URL,
-        logo: `${SITE_URL}/logo.webp`,
+        logo: `${SITE_URL}/logo.jpg`,
         description: SITE_DESCRIPTION,
         sameAs: Object.values(SOCIAL_LINKS).filter(Boolean),
         contactPoint: {
@@ -77,8 +77,8 @@ export function HomeGamesItemListSchema() {
       data={{
         "@context": "https://schema.org",
         "@type": "ItemList",
-        name: "Spinora Casino & Slot Games",
-        description: "Popular Juwa, Game Vault, fish games, and slot games available on Spinora.",
+        name: "ROYALTIES Casino & Slot Games",
+        description: "Popular Juwa, Game Vault, fish games, and slot games available on ROYALTIES.",
         numberOfItems: games.length,
         itemListElement: games.map((game, index) => ({
           "@type": "ListItem",

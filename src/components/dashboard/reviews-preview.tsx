@@ -9,7 +9,7 @@ import { formatRelativeTime } from "@/lib/utils";
 function previewName(fullName?: string | null, email?: string | null) {
   const name = fullName?.trim();
   if (name) return name;
-  if (email && !email.endsWith("@phone.spinora.local")) return email.split("@")[0];
+  if (email && !email.endsWith("@phone.ROYALTIES.local")) return email.split("@")[0];
   return "Player";
 }
 

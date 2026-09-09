@@ -1,4 +1,4 @@
-# Spinora US database setup (drpitkvjcwrbzzufwwjt)
+# ROYALTIES US database setup (drpitkvjcwrbzzufwwjt)
 
 Run each file in **Supabase SQL Editor** in this order:
 
@@ -32,10 +32,10 @@ https://supabase.com/dashboard/project/drpitkvjcwrbzzufwwjt/sql/new
 
 **Authentication → URL Configuration**
 
-- Site URL: `http://localhost:3000` (dev) / `https://spinoracasinos.com` (before deploy)
+- Site URL: `http://localhost:3000` (dev) / `https://royaltiesonlinecasino.com` (before deploy)
 - Redirect URLs:
   - `http://localhost:3000/auth/callback`
-  - `https://spinoracasinos.com/auth/callback`
+  - `https://royaltiesonlinecasino.com/auth/callback`
 
 **Authentication → Providers → Email** — enable + confirm email if used
 

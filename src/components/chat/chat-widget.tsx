@@ -13,6 +13,7 @@ import {
 } from "@/lib/chat/send-message-client";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { ChatMessageContent } from "@/components/chat/chat-message-content";
+import { SupportModeToggle } from "@/components/chat/support-mode-toggle";
 import { FloatingSocialLinks } from "@/components/layout/social-links";
 import { formatRelativeTime } from "@/lib/utils";
 import { CHAT_SCROLL_CLASS } from "@/lib/chat/chat-layout";
@@ -20,6 +21,12 @@ import { useChatAutoScroll } from "@/lib/chat/use-chat-auto-scroll";
 import { playIncomingMessageSound } from "@/lib/chat/message-notification-sound";
 import { toast } from "sonner";
 import type { Message } from "@/types/database";
+import { useSupportChatMode } from "@/lib/chat/use-support-chat-mode";
+import {
+  composerPlaceholder,
+  supportModeHint,
+  supportModeLabel,
+} from "@/lib/chat/support-mode";
 
 /** Mini chat widget for guests only — logged-in users use MessageRealtimeProvider FAB */
 export function ChatWidget() {
@@ -33,6 +40,7 @@ export function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const supabase = useMemo(() => createClient(), []);
+  const { mode: supportMode, setMode: setSupportMode } = useSupportChatMode();
   const messageFingerprint = messages.length > 0 ? messages[messages.length - 1]?.id : "";
   const { onScroll: onScrollMessages } = useChatAutoScroll(
     scrollRef,
@@ -159,6 +167,7 @@ export function ChatWidget() {
       content,
       attachment,
       kind: "user",
+      supportMode,
     });
 
     if (result.error) {
@@ -178,7 +187,7 @@ export function ChatWidget() {
     return true;
   }
 
-  if (isLoggedIn !== false) return null;
+  if (isLoggedIn === true) return null;
 
   if (pathname?.startsWith("/dashboard/messages") || pathname?.startsWith("/admin")) {
     return null;
@@ -192,12 +201,14 @@ export function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed z-50 glass rounded-2xl shadow-2xl overflow-hidden inset-x-3 bottom-3 max-h-[min(520px,calc(100dvh-1.5rem))] flex flex-col sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-96 sm:max-h-[min(560px,calc(100dvh-3rem))]"
+            className="fixed z-50 premium-card shadow-2xl overflow-hidden inset-x-3 bottom-3 max-h-[min(520px,calc(100dvh-1.5rem))] flex flex-col sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-96 sm:max-h-[min(560px,calc(100dvh-3rem))]"
           >
-            <div className="gradient-bg px-4 py-3 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-[#111111] to-[#0b0b0b] border-b border-[rgba(212,175,55,0.25)] px-4 py-3 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-white text-sm">Live Chat Support</h3>
-                <p className="text-xs text-white/70">We typically reply in minutes</p>
+                <h3 className="font-semibold text-[#ffd700] text-sm">Live Chat Support</h3>
+                <p className="text-xs text-[#9a9a9a]">
+                  {supportModeLabel(supportMode)} · {supportModeHint(supportMode)}
+                </p>
               </div>
               <div className="flex gap-1">
                 <button type="button" onClick={() => setOpen(false)} className="p-1.5 hover:bg-white/10 rounded-lg">
@@ -208,6 +219,19 @@ export function ChatWidget() {
                 </button>
               </div>
             </div>
+
+            {userId && supabase && (
+              <div className="px-3 py-2 border-b border-[rgba(212,175,55,0.12)] bg-[#0b0b0b] shrink-0">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#d4af37] mb-2">
+                  Who should reply?
+                </p>
+                <SupportModeToggle
+                  mode={supportMode}
+                  onChange={setSupportMode}
+                  compact
+                />
+              </div>
+            )}
 
             <div
               ref={scrollRef}
@@ -254,7 +278,7 @@ export function ChatWidget() {
                 onChange={setInput}
                 onSend={handleSend}
                 loading={loading}
-                placeholder="Type a message..."
+                placeholder={composerPlaceholder(supportMode)}
                 className="shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0"
               />
             )}

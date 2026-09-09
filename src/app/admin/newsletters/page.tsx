@@ -48,7 +48,7 @@ export default async function AdminNewslettersPage() {
       <div className="mx-auto max-w-3xl">
         <AdminPageHeader
           title="Email promos"
-          description="Send promo emails to players who signed up on Spinora."
+          description="Send promo emails to players who signed up on ROYALTIES."
         />
         <GlassCard className="p-6 text-sm text-muted-foreground">
           Newsletter tables are not set up yet. Run{" "}
@@ -65,7 +65,7 @@ export default async function AdminNewslettersPage() {
     <div className="mx-auto max-w-5xl">
       <AdminPageHeader
         title="Email promos"
-        description="Send promo emails to players who signed up on Spinora."
+        description="Send promo emails to players who signed up on ROYALTIES."
         action={
           <NewsletterCampaignDialog
             title="New email promo"
@@ -97,8 +97,8 @@ export default async function AdminNewslettersPage() {
         </ol>
         <p className="mt-4 text-xs text-muted-foreground border-t border-border pt-4">
           <strong className="text-foreground">Inbox tip:</strong> In Resend, verify{" "}
-          <code className="text-foreground">spinoracasinos.com</code> (SPF + DKIM + DMARC). Send from{" "}
-          <code className="text-foreground">noreply@spinoracasinos.com</code> only after the domain
+          <code className="text-foreground">royaltiesonlinecasino.com</code> (SPF + DKIM + DMARC). Send from{" "}
+          <code className="text-foreground">noreply@royaltiesonlinecasino.com</code> only after the domain
           shows “Verified”. Ask new players to mark the first email as Not spam.
         </p>
       </GlassCard>

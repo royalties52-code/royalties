@@ -9,7 +9,7 @@ import {
   type WalletTransactionRow,
 } from "@/lib/wallet/transaction-display";
 
-export const metadata: Metadata = { title: "Wallet | Spinora" };
+export const metadata: Metadata = { title: "Wallet | ROYALTIES" };
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });

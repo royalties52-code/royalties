@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { ChatMessageContent } from "@/components/chat/chat-message-content";
+import { SupportChatModeBar } from "@/components/chat/support-chat-mode-bar";
 import { MobileChatShell, useMobileChatClose } from "@/components/chat/mobile-chat-shell";
 import { appendMessage, mergeMessagesById } from "@/lib/chat/merge-messages";
 import { subscribeToConversationInserts } from "@/lib/chat/subscribe-messages";
@@ -17,6 +18,12 @@ import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { formatRelativeTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/database";
+import { useSupportChatMode } from "@/lib/chat/use-support-chat-mode";
+import {
+  composerPlaceholder,
+  supportModeHint,
+  supportModeLabel,
+} from "@/lib/chat/support-mode";
 
 interface UserQuickChatProps {
   open: boolean;
@@ -38,6 +45,7 @@ function QuickChatPanel({
 }) {
   const closeViaBack = useMobileChatClose();
   const supabase = useMemo(() => createClient(), []);
+  const { mode: supportMode, setMode: setSupportMode } = useSupportChatMode();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -102,6 +110,7 @@ function QuickChatPanel({
       senderId: userId,
       content,
       kind: "user",
+      supportMode,
     });
 
     if (result.error) {
@@ -144,8 +153,10 @@ function QuickChatPanel({
           <Headphones className="h-4 w-4 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white truncate">Spinora Support</p>
-          <p className="text-[10px] text-emerald-300">Live chat</p>
+          <p className="text-sm font-semibold text-white truncate">ROYALTIES Support</p>
+          <p className="text-[10px] text-muted-foreground truncate">
+            {supportModeLabel(supportMode)} · {supportModeHint(supportMode)}
+          </p>
         </div>
         <Link
           href={`/dashboard/messages?conversation=${conversationId}`}
@@ -162,6 +173,8 @@ function QuickChatPanel({
           {isMobile ? <X className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
         </button>
       </div>
+
+      <SupportChatModeBar className="rounded-none border-x-0 border-t-0 shrink-0" />
 
       <div
         ref={scrollRef}
@@ -200,7 +213,7 @@ function QuickChatPanel({
         onChange={setInput}
         onSend={handleSend}
         loading={loading}
-        placeholder="Reply..."
+        placeholder={composerPlaceholder(supportMode)}
         className="bg-[#121212] border-white/10 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       />
     </div>
@@ -230,7 +243,7 @@ export function UserQuickChat({ open, conversationId, userId, onClose }: UserQui
   }
 
   return (
-    <div className="fixed bottom-[5.5rem] right-6 z-[140] w-[min(100vw-2rem,22rem)] h-[min(70vh,28rem)] rounded-2xl border border-white/10 bg-[#121212] shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed bottom-[5.5rem] right-6 z-[9998] w-[min(100vw-2rem,22rem)] h-[min(70vh,28rem)] rounded-2xl border border-white/10 bg-[#121212] shadow-2xl flex flex-col overflow-hidden">
       {panel}
     </div>
   );

@@ -21,11 +21,11 @@ export function CoinFlipLogo({ size = 180, className, href = "/spin" }: CoinFlip
         <div className="coin-flip-face coin-flip-front">
           <div className="coin-flip-rim">
             <Image
-              src="/logo.webp"
+              src="/logo.jpg"
               alt={SITE_NAME}
               width={size}
               height={size}
-              className="rounded-full object-cover w-full h-full shadow-[0_0_40px_rgba(251,191,36,0.45)]"
+              className="rounded-full object-cover w-full h-full shadow-[0_0_40px_rgba(212,175,55,0.45)]"
               priority
             />
           </div>

@@ -87,7 +87,9 @@ export function AppShell({
             aria-modal="true"
             aria-label="Navigation menu"
           >
-            <div className="sticky top-0 z-10 flex items-center justify-end p-3 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5">
+            <div
+              className="sticky top-0 z-10 flex items-center justify-end p-3 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5"
+            >
               <button
                 type="button"
                 onClick={closeMobile}

@@ -1,4 +1,4 @@
-# Spinora data migration — Old (Sydney) → New (US East)
+# ROYALTIES data migration — Old (Sydney) → New (US East)
 
 **Old project:** `aptzyjsaptaqcovjatqi` (ap-southeast-2)  
 **New project:** `drpitkvjcwrbzzufwwjt` (us-east-1)
@@ -75,7 +75,7 @@ pg_dump -h db.aptzyjsaptaqcovjatqi.supabase.co -U postgres -d postgres `
   --schema=auth --data-only `
   --table=auth.users `
   --table=auth.identities `
-  -f S:\Spinora\migration\auth-data.sql
+  -f S:\ROYALTIES\migration\auth-data.sql
 
 # Public app data
 pg_dump -h db.aptzyjsaptaqcovjatqi.supabase.co -U postgres -d postgres `
@@ -93,10 +93,10 @@ pg_dump -h db.aptzyjsaptaqcovjatqi.supabase.co -U postgres -d postgres `
   --table=public.user_task_levels `
   --table=public.user_task_submissions `
   --table=public.announcements `
-  -f S:\Spinora\migration\public-data.sql
+  -f S:\ROYALTIES\migration\public-data.sql
 ```
 
-Create folder first: `mkdir S:\Spinora\migration`
+Create folder first: `mkdir S:\ROYALTIES\migration`
 
 If a table doesn't exist on old DB, remove that `--table=` line (pg_dump will error).
 
@@ -110,10 +110,10 @@ Replace `NEW_DB_PASSWORD`.
 $env:PGPASSWORD = "NEW_DB_PASSWORD"
 
 # Auth first (users must exist before profiles FK)
-psql -h db.drpitkvjcwrbzzufwwjt.supabase.co -U postgres -d postgres -f S:\Spinora\migration\auth-data.sql
+psql -h db.drpitkvjcwrbzzufwwjt.supabase.co -U postgres -d postgres -f S:\ROYALTIES\migration\auth-data.sql
 
 # Then app data
-psql -h db.drpitkvjcwrbzzufwwjt.supabase.co -U postgres -d postgres -f S:\Spinora\migration\public-data.sql
+psql -h db.drpitkvjcwrbzzufwwjt.supabase.co -U postgres -d postgres -f S:\ROYALTIES\migration\public-data.sql
 ```
 
 ### If auth import errors (common)
@@ -193,7 +193,7 @@ SELECT COUNT(*) FROM auth.users;
 `.env.local` should already point to NEW project.
 
 ```powershell
-cd S:\Spinora
+cd S:\ROYALTIES
 npm run dev
 ```
 
@@ -229,7 +229,7 @@ Add in Google Cloud Console authorized redirect URIs.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
 2. Redeploy production (when ready — you said wait until tested).
-3. Test login on https://spinoracasinos.com
+3. Test login on https://royaltiesonlinecasino.com
 4. After 1 week stable → pause/delete OLD Sydney project.
 
 ---

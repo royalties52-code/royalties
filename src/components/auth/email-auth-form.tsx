@@ -18,6 +18,7 @@ import {
   isPhoneAvailable,
   signInWithEmailPassword,
 } from "@/lib/actions/auth";
+import { triggerPostLoginPopups } from "@/lib/auth/post-login";
 import { checkSignupAllowed, linkSignupSecurity } from "@/lib/actions/security";
 import { getDeviceId } from "@/lib/security/device-fingerprint";
 
@@ -50,7 +51,7 @@ function EmailConfirmationNotice({
         {variant === "register" ? (
           <>
             Your account was created but is <strong className="text-foreground">not active yet</strong>.
-            Open the email and click the confirmation link. You&apos;ll be redirected to Spinora and
+            Open the email and click the confirmation link. You&apos;ll be redirected to ROYALTIES and
             signed in automatically once verified.
           </>
         ) : (
@@ -120,6 +121,7 @@ export function EmailAuthForm({ mode, redirect = "/", referralCodeFromUrl }: Ema
       }
 
       toast.success("Welcome back!");
+      triggerPostLoginPopups();
       router.push(redirect);
       router.refresh();
       return;
@@ -250,7 +252,8 @@ export function EmailAuthForm({ mode, redirect = "/", referralCodeFromUrl }: Ema
     await linkSignupSecurity(deviceId);
 
     setLoading(false);
-    toast.success("Account created! Welcome to Spinora.");
+    toast.success("Account created! Welcome to ROYALTIES.");
+    triggerPostLoginPopups();
     router.push(redirect);
     router.refresh();
   }

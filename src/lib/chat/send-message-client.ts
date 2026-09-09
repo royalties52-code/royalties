@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupportChatMode } from "@/lib/chat/support-mode";
 import type { Message } from "@/types/database";
 
 export interface SendMessageAttachment {
@@ -16,9 +17,11 @@ export async function sendMessageClient(
     content: string;
     attachment?: SendMessageAttachment;
     kind: "user" | "admin";
+    /** Customer preference: bot auto-reply vs live human support */
+    supportMode?: SupportChatMode;
   }
 ): Promise<{ message?: Message; error?: string }> {
-  const { conversationId, senderId, content, attachment, kind } = input;
+  const { conversationId, senderId, content, attachment, kind, supportMode } = input;
 
   if (!content.trim() && !attachment) {
     return { error: "Message cannot be empty" };
@@ -54,6 +57,7 @@ export async function sendMessageClient(
       content: content.trim(),
       attachmentType: attachment?.type ?? null,
       kind,
+      ...(kind === "user" && supportMode ? { supportMode } : {}),
     }),
     keepalive: true,
   }).catch(() => {});

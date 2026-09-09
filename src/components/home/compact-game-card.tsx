@@ -9,14 +9,15 @@ import { cn } from "@/lib/utils";
 interface CompactGameCardProps {
   game: Game;
   variant?: "slider" | "grid";
+  featured?: boolean;
   className?: string;
-  /** First visible row — load image immediately (no wait for scroll) */
   eager?: boolean;
 }
 
 export function CompactGameCard({
   game,
   variant = "grid",
+  featured = false,
   className,
   eager = false,
 }: CompactGameCardProps) {
@@ -33,7 +34,7 @@ export function CompactGameCard({
           fill
           priority={eager}
           loading={eager ? "eager" : "lazy"}
-          className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+          className="object-cover object-center transition-transform duration-250 group-hover:scale-[1.04]"
           sizes={
             variant === "slider"
               ? "148px"
@@ -41,20 +42,31 @@ export function CompactGameCard({
           }
         />
       ) : (
-        <div className="absolute inset-0 bg-white/[0.06] animate-pulse" aria-hidden />
+        <div className="absolute inset-0 bg-[#161616] animate-pulse" aria-hidden />
       )}
 
-      <div className="absolute inset-x-0 bottom-0 z-10 px-2 pb-2.5 pt-10 text-center bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-        <p className="text-[11px] sm:text-xs font-bold text-white leading-tight line-clamp-2">
+      <div className="absolute inset-x-0 bottom-0 z-10 px-2.5 pb-2.5 pt-12 text-left bg-gradient-to-t from-black via-black/75 to-transparent">
+        <p className="text-[10px] uppercase tracking-wider text-[#9a9a9a] mb-0.5">
+        {game.category}
+        </p>
+        <p className="text-[11px] sm:text-xs font-bold text-[#f5f5f5] leading-tight line-clamp-2 group-hover:text-[#d4af37] transition-colors duration-200">
           {game.name}
         </p>
-        <p className="text-[9px] sm:text-[10px] text-white/80 mt-0.5 group-hover:text-orange-300 transition-colors">
-          {game.upcoming ? "Coming Soon" : "Play Now"}
-        </p>
+        {!game.upcoming && (
+          <span className="inline-flex mt-2 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide bg-gradient-to-r from-[#b00020] to-[#8b0018] text-[#ffd700] shadow-[0_0_12px_rgba(176,0,32,0.25)]">
+            Play Now
+          </span>
+        )}
       </div>
 
+      {featured && !game.upcoming && (
+        <span className="premium-badge-featured absolute top-2 left-2 z-20">
+          ★ FEATURED
+        </span>
+      )}
+
       {game.upcoming && (
-        <span className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-md bg-blue-500/90 text-[9px] font-bold text-white">
+        <span className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-md bg-[#161616] border border-[rgba(212,175,55,0.25)] text-[9px] font-bold text-[#9a9a9a]">
           SOON
         </span>
       )}
@@ -62,11 +74,10 @@ export function CompactGameCard({
   );
 
   const classNames = cn(
-    "group relative block rounded-2xl overflow-hidden text-left",
-    "border border-white/10 hover:border-orange-400/40 transition-colors",
+    "group relative block rounded-xl overflow-hidden text-left",
     variant === "slider"
       ? "game-slider-card w-[128px] sm:w-[148px] aspect-[3/4] shrink-0"
-      : "game-card w-full aspect-[3/4]",
+      : cn("game-card w-full aspect-[3/4]", featured && "game-card--featured"),
     className
   );
 
@@ -81,6 +92,7 @@ export function CompactGameCard({
       >
         <span className="sr-only">{game.name}</span>
       </Link>
+      <div className="game-card-shine" aria-hidden />
       {inner}
     </div>
   );

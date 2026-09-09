@@ -1,8 +1,8 @@
-# Spinora Admin Essentials (safe SQL bundle)
+# ROYALTIES Admin Essentials (safe SQL bundle)
 
 **Folder:** `supabase/admin-essentials/`
 
-This bundle adds the **new admin panel tables** on top of your **existing Spinora database**.
+This bundle adds the **new admin panel tables** on top of your **existing ROYALTIES database**.
 
 ## Can Cursor edit my Supabase directly?
 
@@ -19,11 +19,11 @@ https://supabase.com/dashboard/project/drpitkvjcwrbzzufwwjt/sql/new
 | Creates **new** tables (`roles`, `support_tickets`, `promotions`, …) | Recreates `profiles` |
 | Does **not** drop or truncate anything | Full WinSweeps profiles migration |
 | Does **not** touch chat, deposits, wallets | Duplicate wallet / game_load SQL |
-| Keeps Spinora `profiles`, `conversations`, `referrals` | Re-run `schema.sql` if DB already works |
+| Keeps ROYALTIES `profiles`, `conversations`, `referrals` | Re-run `schema.sql` if DB already works |
 
 Your users, chat history, deposits, wallet loads, and transactions stay as they are.
 
-## Do NOT re-run (Spinora base — already on your DB)
+## Do NOT re-run (ROYALTIES base — already on your DB)
 
 If login + chat + deposits already work, skip everything in `supabase/supabase/MIGRATION-ORDER.md`.
 
@@ -33,7 +33,7 @@ If login + chat + deposits already work, skip everything in `supabase/supabase/M
 |---|------|
 | 1 | `01-extensions-types.sql` |
 | 2 | `02-rbac.sql` |
-| 2b | `02b-profile-columns-spinora.sql` |
+| 2b | `02b-profile-columns-ROYALTIES.sql` |
 | 3 | `03-vip.sql` |
 | 4 | `04-rewards-ledger.sql` |
 | 5 | `05-achievements.sql` |
@@ -47,7 +47,7 @@ If login + chat + deposits already work, skip everything in `supabase/supabase/M
 | 13 | `13-contact-promo-seed.sql` |
 | 14 | `14-rate-limiting.sql` |
 | 15 | `15-function-grants.sql` |
-| 16 | `16-public-profiles-spinora.sql` |
+| 16 | `16-public-profiles-ROYALTIES.sql` |
 | 17 | `17-games-requests.sql` |
 | 18 | `18-blog-seed.sql` |
 | 19 | `19-fix-promotions.sql` |
@@ -87,7 +87,7 @@ If login + chat + deposits already work, skip everything in `supabase/supabase/M
 |-------|--------|
 | `already exists` | Skip that file, continue |
 | `relation does not exist` | You skipped a required earlier file — go back |
-| `column does not exist` | Share the file name + error for a Spinora tweak |
+| `column does not exist` | Share the file name + error for a ROYALTIES tweak |
 
 ## After running
 

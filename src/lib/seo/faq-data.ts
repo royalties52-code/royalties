@@ -1,6 +1,6 @@
 export const HOME_FAQS = [
   {
-    q: "How do I request a game account on Spinora?",
+    q: "How do I request a game account on ROYALTIES?",
     a: "Create a free account, browse games on the homepage, click any game card to submit a request. Our team processes accounts within 24 hours.",
   },
   {

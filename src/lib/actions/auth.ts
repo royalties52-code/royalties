@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/phone";
 import { isEmailIdentifier, normalizeEmail, formatAuthErrorMessage } from "@/lib/auth/identifier";
 import { buildAuthCallbackUrl } from "@/lib/auth/callback-url";
+import { maybeSendBotWelcome } from "@/lib/chat/support-bot";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -68,7 +69,7 @@ export async function resolveLoginEmail(
     };
   }
 
-  if (!profile?.email || profile.email.endsWith("@phone.spinora.local")) {
+  if (!profile?.email || profile.email.endsWith("@phone.ROYALTIES.local")) {
     return {
       email: null,
       error: "No account found for this phone. Register with your email and phone number.",
@@ -343,6 +344,17 @@ export async function signInWithEmailPassword(input: {
     }
 
     return { ok: false, error: formatAuthErrorMessage(error) };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    try {
+      await maybeSendBotWelcome({ customerId: user.id });
+    } catch (err) {
+      console.warn("[auth] bot welcome failed:", err);
+    }
   }
 
   return { ok: true, loggedIn: true };

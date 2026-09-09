@@ -14,7 +14,7 @@ interface AdminUserSearchProps {
 }
 
 function displayUserContact(user: AdminUserSearchResult) {
-  if (user.email && !user.email.endsWith("@phone.spinora.local")) return user.email;
+  if (user.email && !user.email.endsWith("@phone.ROYALTIES.local")) return user.email;
   if (user.phone) return user.phone;
   if (user.whatsapp) return user.whatsapp;
   return "Phone user";

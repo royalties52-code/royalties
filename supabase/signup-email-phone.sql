@@ -28,9 +28,6 @@ DECLARE
   user_phone TEXT;
   user_whatsapp TEXT;
   user_email TEXT;
-  admin_user UUID;
-  conv_id UUID;
-  welcome_msg TEXT := 'Hey! Welcome to Spinora — we''re genuinely glad you joined us. Browse games, try your daily spin, and message us anytime if you need help with accounts, deposits, or VIP rewards. Our team is here for you!';
 BEGIN
   ref_code := UPPER(SUBSTRING(MD5(NEW.id::TEXT) FROM 1 FOR 8));
   meta_ref := NULLIF(TRIM(NEW.raw_user_meta_data->>'referral_code'), '');
@@ -68,29 +65,7 @@ BEGIN
     WHERE id = referrer;
   END IF;
 
-  SELECT id INTO admin_user
-  FROM public.profiles
-  WHERE role = 'admin'
-  ORDER BY created_at ASC
-  LIMIT 1;
-
-  IF admin_user IS NOT NULL THEN
-    INSERT INTO public.conversations (user_id, admin_id)
-    VALUES (NEW.id, admin_user)
-    RETURNING id INTO conv_id;
-
-    INSERT INTO public.messages (conversation_id, sender_id, content, is_read)
-    VALUES (conv_id, admin_user, welcome_msg, false);
-
-    INSERT INTO public.notifications (user_id, title, message, type, is_read)
-    VALUES (
-      NEW.id,
-      'Welcome to Spinora!',
-      'Our team sent you a welcome message. Open Messages to read it.',
-      'info',
-      false
-    );
-  END IF;
+  -- Welcome chat is handled by the AI bot on login (/api/chat/bot-greet).
 
   RETURN NEW;
 EXCEPTION

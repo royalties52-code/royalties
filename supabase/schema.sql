@@ -327,6 +327,6 @@ ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
 
 -- Seed announcements
 INSERT INTO announcements (title, content, type) VALUES
-  ('Welcome to Spinora!', 'Join our premium gaming platform and get exclusive access to top games with 24/7 support.', 'promotion'),
+  ('Welcome to Royalties!', 'Join our premium gaming platform and get exclusive access to top games with 24/7 support.', 'promotion'),
   ('VIP Double Points Weekend', 'Earn 2x VIP points on all game requests this weekend only!', 'promotion'),
   ('New Games Added', 'We have added Fire Kirin, Juwa, and Panda Master to our platform.', 'update');

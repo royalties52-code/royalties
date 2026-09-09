@@ -16,13 +16,7 @@ export function ChatWidgetLoader() {
   useEffect(() => {
     if (pathname.startsWith("/admin")) return;
 
-    const start = () => setReady(true);
-    if ("requestIdleCallback" in window) {
-      const id = requestIdleCallback(start, { timeout: 6000 });
-      return () => cancelIdleCallback(id);
-    }
-    const timer = setTimeout(start, 2000);
-    return () => clearTimeout(timer);
+    setReady(true);
   }, [pathname]);
 
   if (!ready) return null;

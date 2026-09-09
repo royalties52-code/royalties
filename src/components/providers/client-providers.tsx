@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Toaster } from "sonner";
 import { MessageRealtimeProvider } from "@/components/chat/message-realtime-provider";
+import { FloatingSupportDock } from "@/components/chat/floating-support-dock";
+import { PostLoginProvider } from "@/components/post-login/post-login-provider";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
+import { triggerPostLoginPopups } from "@/lib/auth/post-login";
 import { createClient } from "@/lib/supabase/client";
 import { MessageRealtimeStubProvider } from "@/lib/chat/message-realtime-stub";
 
@@ -33,8 +37,11 @@ export function ClientProviders({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setLoggedIn(!!session);
+      if (event === "SIGNED_IN" && session?.user) {
+        triggerPostLoginPopups();
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -43,12 +50,21 @@ export function ClientProviders({ children }: { children: ReactNode }) {
   const useRealtime =
     loggedIn === true && needsRealtimeImmediately(pathname);
 
+  const showFloatingDock =
+    loggedIn !== null &&
+    !pathname?.startsWith("/admin/chat") &&
+    !pathname?.startsWith("/dashboard/messages") &&
+    !useRealtime;
+
   const Provider = useRealtime ? MessageRealtimeProvider : MessageRealtimeStubProvider;
 
   return (
-    <>
-      <Provider>{children}</Provider>
-      <Toaster richColors closeButton position="top-center" />
-    </>
+    <PostLoginProvider>
+      <PwaProvider loggedIn={loggedIn === true}>
+        <Provider>{children}</Provider>
+        {showFloatingDock && <FloatingSupportDock loggedIn={loggedIn === true} />}
+        <Toaster richColors closeButton position="top-center" />
+      </PwaProvider>
+    </PostLoginProvider>
   );
 }

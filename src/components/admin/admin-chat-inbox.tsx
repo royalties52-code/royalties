@@ -57,7 +57,7 @@ function unreadsToMap(list: AdminConversationUnread[]): Record<string, AdminConv
 
 function displayContact(user: ConversationUser | null | undefined) {
   const email = user?.email ?? "";
-  if (!email || email.endsWith("@phone.spinora.local")) {
+  if (!email || email.endsWith("@phone.ROYALTIES.local")) {
     return user?.full_name ? `${user.full_name} · Phone user` : "Phone user";
   }
   return email;
@@ -157,7 +157,7 @@ function AdminChatPanel({
           </p>
         ) : (
           messages.map((msg) => {
-            const isAdminMsg = msg.sender_id === adminId;
+            const isAdminMsg = msg.sender_id !== selected?.user_id;
             return (
               <div
                 key={msg.id}

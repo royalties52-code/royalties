@@ -6,8 +6,8 @@ import { Footer } from "@/components/layout/footer";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Spinora",
-  description: "How Spinora collects, uses, and protects your information.",
+  title: "Privacy Policy | ROYALTIES",
+  description: "How ROYALTIES collects, uses, and protects your information.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -30,11 +30,11 @@ const SECTIONS = [
   },
   {
     heading: "Your choices",
-    body: "You may update profile details from your dashboard and request account deletion by contacting support@spinoracasinos.com.",
+    body: "You may update profile details from your dashboard and request account deletion by contacting support@royaltiesonlinecasino.com.",
   },
   {
     heading: "Contact",
-    body: "Privacy questions: support@spinoracasinos.com.",
+    body: "Privacy questions: support@royaltiesonlinecasino.com.",
   },
 ];
 

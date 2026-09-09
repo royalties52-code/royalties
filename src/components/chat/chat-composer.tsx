@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getAttachmentType, resolveFileMimeType } from "@/lib/chat/attachments";
 import { unlockMessageNotificationSound } from "@/lib/chat/message-notification-sound";
+import { SupportModeToggle } from "@/components/chat/support-mode-toggle";
+import type { SupportChatMode } from "@/lib/chat/support-mode";
 
 interface ChatComposerProps {
   value: string;
@@ -18,6 +20,10 @@ interface ChatComposerProps {
   placeholder?: string;
   className?: string;
   showSendLabel?: boolean;
+  showSupportModeToggle?: boolean;
+  supportMode?: SupportChatMode;
+  onSupportModeChange?: (mode: SupportChatMode) => void;
+  compactSupportModeToggle?: boolean;
 }
 
 export function ChatComposer({
@@ -29,6 +35,10 @@ export function ChatComposer({
   placeholder = "Type a message...",
   className,
   showSendLabel = false,
+  showSupportModeToggle = false,
+  supportMode = "bot",
+  onSupportModeChange,
+  compactSupportModeToggle = false,
 }: ChatComposerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -79,6 +89,14 @@ export function ChatComposer({
         className
       )}
     >
+      {showSupportModeToggle && onSupportModeChange && (
+        <SupportModeToggle
+          mode={supportMode}
+          onChange={onSupportModeChange}
+          compact={compactSupportModeToggle}
+        />
+      )}
+
       {pendingFile && (
         <div className="px-3 pt-3 flex items-start gap-2">
           {previewUrl ? (

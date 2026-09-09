@@ -6,19 +6,19 @@ import { Footer } from "@/components/layout/footer";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Spinora",
-  description: "Terms that govern your use of the Spinora platform.",
+  title: "Terms of Service | ROYALTIES",
+  description: "Terms that govern your use of the ROYALTIES platform.",
   alternates: { canonical: "/terms" },
 };
 
 const SECTIONS = [
   {
     heading: "Acceptance of these terms",
-    body: "By creating a Spinora account or using any part of the platform, you agree to these Terms of Service and our Privacy Policy. We may update these terms from time to time; continued use after changes take effect constitutes acceptance.",
+    body: "By creating a ROYALTIES account or using any part of the platform, you agree to these Terms of Service and our Privacy Policy. We may update these terms from time to time; continued use after changes take effect constitutes acceptance.",
   },
   {
     heading: "Eligibility",
-    body: "Spinora is available to individuals 18 years of age or older. One account per person. Accounts are personal and non-transferable.",
+    body: "ROYALTIES is available to individuals 18 years of age or older. One account per person. Accounts are personal and non-transferable.",
   },
   {
     heading: "Virtual rewards",
@@ -30,7 +30,7 @@ const SECTIONS = [
   },
   {
     heading: "Contact",
-    body: "Questions about these terms: support@spinoracasinos.com or open a message from your dashboard.",
+    body: "Questions about these terms: support@royaltiesonlinecasino.com or open a message from your dashboard.",
   },
 ];
 

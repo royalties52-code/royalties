@@ -6,7 +6,7 @@ import { AdminLayoutSkeleton } from "@/components/admin/admin-layout-skeleton";
 import AdminLoading from "./loading";
 
 export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s · Spinora Admin" },
+  title: { default: "Admin", template: "%s · ROYALTIES Admin" },
   robots: { index: false, follow: false },
 };
 

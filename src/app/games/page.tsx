@@ -10,9 +10,9 @@ import { getGames } from "@/lib/data/marketing";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "All Games | Spinora",
+  title: "All Games | ROYALTIES",
   description:
-    "Browse sweepstakes fish table and slot games at Spinora. Create an account, deposit, and play with 24/7 support.",
+    "Browse sweepstakes fish table and slot games at ROYALTIES. Create an account, deposit, and play with 24/7 support.",
   alternates: { canonical: "/games" },
 };
 
@@ -31,7 +31,7 @@ export default async function GamesCatalogPage() {
               Browse All <span className="gradient-text">Games</span>
             </h1>
             <p className="text-muted-foreground text-lg">
-              Create a free Spinora account, pick a game, and load credits from your wallet. Instant setup with 24/7 support.
+              Create a free ROYALTIES account, pick a game, and load credits from your wallet. Instant setup with 24/7 support.
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Ban, Search } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminUserWalletDialog } from "@/components/admin/admin-user-wallet-dialog";
 import { GlassCard } from "@/components/shared/glass-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -96,12 +97,13 @@ export default async function AdminUsersPage({
                 <TableHead className="text-right">Cash-out</TableHead>
                 <TableHead className="text-right">Joined</TableHead>
                 <TableHead className="text-right">Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                     No members match “{q}”.
                   </TableCell>
                 </TableRow>
@@ -141,6 +143,14 @@ export default async function AdminUsersPage({
                           Active
                         </Badge>
                       )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <AdminUserWalletDialog
+                        userId={u.id}
+                        displayName={profileDisplayName(u)}
+                        walletBalance={profileNum(u.wallet_balance)}
+                        cashoutWallet={profileNum(u.cashout_wallet)}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
