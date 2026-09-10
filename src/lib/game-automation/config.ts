@@ -35,6 +35,28 @@ export function getGameroomAdminPanelUrl(): string | null {
   return process.env.GAMEROOM_ADMIN_URL?.trim() || "https://agentserver1.gameroom777.com/admin/login";
 }
 
+/** Gameroom store/agent login (username doubles as store name on the panel). */
+export function getGameroomAgentCredentials(): {
+  username: string;
+  password: string;
+  storeName: string;
+} | null {
+  const username =
+    process.env.GAMEROOM_AGENT_USERNAME?.trim() ||
+    process.env.GAMEROOM_USERNAME?.trim() ||
+    "";
+  const password =
+    process.env.GAMEROOM_AGENT_PASSWORD?.trim() ||
+    process.env.GAMEROOM_PASSWORD?.trim() ||
+    "";
+  if (!username || !password) return null;
+  return {
+    username,
+    password,
+    storeName: process.env.GAMEROOM_STORE_NAME?.trim() || username,
+  };
+}
+
 export function getCashMachineAdminPanelUrl(): string | null {
   return process.env.CASHMACHINE_ADMIN_URL?.trim() || "https://agentserver.cashmachine777.com/admin/login";
 }
@@ -45,6 +67,22 @@ export function getMrAllInOneAdminPanelUrl(): string | null {
 
 export function getMafiaAdminPanelUrl(): string | null {
   return process.env.MAFIA_ADMIN_URL?.trim() || "https://agentserver.mafia77777.com/admin/login";
+}
+
+/** Mafia store/agent login (username doubles as store name on the panel). */
+export function getMafiaAgentCredentials(): {
+  username: string;
+  password: string;
+  storeName: string;
+} | null {
+  const username = process.env.MAFIA_AGENT_USERNAME?.trim() || "";
+  const password = process.env.MAFIA_AGENT_PASSWORD?.trim() || "";
+  if (!username || !password) return null;
+  return {
+    username,
+    password,
+    storeName: process.env.MAFIA_STORE_NAME?.trim() || username,
+  };
 }
 
 export function getAutomationSecret(): string | null {

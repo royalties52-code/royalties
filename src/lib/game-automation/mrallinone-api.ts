@@ -309,9 +309,8 @@ export class MrAllInOneApiClient {
     if (formParams) {
       const fields: Record<string, string> = {};
       for (const [k, v] of Object.entries(formParams)) fields[k] = String(v);
-      const multipart = buildMultipart(fields);
-      headers["Content-Type"] = `multipart/form-data; boundary=${multipart.boundary}`;
-      bodyBuffer = multipart.body;
+      headers["Content-Type"] = "application/json";
+      bodyBuffer = Buffer.from(JSON.stringify(fields), "utf8");
     }
 
     console.log(`[MR All-in-One API] ${method} ${endpoint}`);

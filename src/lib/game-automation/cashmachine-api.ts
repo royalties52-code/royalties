@@ -1,3 +1,5 @@
+import { proxyFetch, resolveGameProxyUrl } from "./proxy-fetch";
+
 /**
  * CashMachine777 Direct REST API Client
  *
@@ -90,6 +92,7 @@ export interface CashMachineApiConfig {
   baseUrl?: string;
   username?: string;
   password?: string;
+  proxyUrl?: string;
 }
 
 export interface ApiRequestOptions extends RequestInit {
@@ -100,10 +103,14 @@ export class CashMachineApiClient {
   private baseUrl: string;
   private agentUsername: string;
   private agentPassword: string;
+  private proxyUrl?: string;
   private token: string | null = null;
   private expiresTime: number | null = null;
 
   constructor(config: CashMachineApiConfig = {}) {
+    this.proxyUrl =
+      config.proxyUrl ||
+      resolveGameProxyUrl("CASHMACHINE_PROXY_URL", "GAMEVAULT_PROXY_URL");
     this.baseUrl = (
       config.baseUrl ||
       process.env.CASHMACHINE_API_BASE_URL ||
@@ -138,19 +145,20 @@ export class CashMachineApiClient {
     return this.login();
   }
 
-  /**
-   * Helper to format FormData body for POST requests.
-   */
-  private buildFormData(params: Record<string, string | number>): FormData {
-    const formData = new FormData();
-    for (const [key, value] of Object.entries(params)) {
-      formData.append(key, String(value));
+  private wrapFetchError(err: unknown, action: string): Error {
+    const cause = (err as { cause?: { code?: string } })?.cause;
+    const code = cause?.code || "";
+    const msg = err instanceof Error ? err.message : String(err);
+    if (code === "UND_ERR_SOCKET" || code === "ECONNREFUSED" || /fetch failed|ECONNRESET|ETIMEDOUT/i.test(msg)) {
+      return new Error(
+        `Cash Machine ${action}: server connection failed. The agent host may be blocking this server's IP — contact your distributor to whitelist it.`
+      );
     }
-    return formData;
+    return err instanceof Error ? err : new Error(msg);
   }
 
   /**
-   * Helper for API fetch with standard error parsing.
+   * Helper for API fetch with standard error parsing (JSON + Bearer, same as Mafia/Gameroom).
    */
   private async request<T>(
     endpoint: string,
@@ -167,10 +175,12 @@ export class CashMachineApiClient {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(url, {
-      ...options,
-      headers,
-    });
+    let res: Response;
+    try {
+      res = await proxyFetch(url, { ...options, headers }, this.proxyUrl);
+    } catch (err) {
+      throw this.wrapFetchError(err, endpoint);
+    }
 
     let json: any;
     try {
@@ -209,14 +219,13 @@ export class CashMachineApiClient {
       );
     }
 
-    const body = this.buildFormData({
-      username: user,
-      password: pass,
-    });
-
     const res = await this.request<CashMachineLoginResponse>(
       "/api/agent/login",
-      { method: "POST", body },
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user, password: pass }),
+      },
       false
     );
 
@@ -289,16 +298,15 @@ export class CashMachineApiClient {
       .slice(0, 20);
     if (!cleanNick) cleanNick = "User" + Math.floor(1000 + Math.random() * 9000);
 
-    const body = this.buildFormData({
-      username: cleanUser,
-      nickname: cleanNick,
-      password: String(password).trim(),
-      money: String(money),
-    });
-
     return this.request<CashMachineAddPlayerResponse>("/api/player/insertPlayer", {
       method: "POST",
-      body,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: cleanUser,
+        nickname: cleanNick,
+        password: String(password).trim(),
+        money: String(money),
+      }),
     });
   }
 
@@ -326,15 +334,14 @@ export class CashMachineApiClient {
       .replace(/[^a-zA-Z0-9]/g, "")
       .slice(0, 50) || "webrecharge";
 
-    const body = this.buildFormData({
-      id,
-      balance: String(balance),
-      remark: cleanRemark,
-    });
-
     return this.request<CashMachineRechargeResponse>("/api/player/playerRecharge", {
       method: "POST",
-      body,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        balance: String(balance),
+        remark: cleanRemark,
+      }),
     });
   }
 
@@ -352,15 +359,14 @@ export class CashMachineApiClient {
       .replace(/[^a-zA-Z0-9]/g, "")
       .slice(0, 50) || "webwithdraw";
 
-    const body = this.buildFormData({
-      id,
-      balance: String(balance),
-      remark: cleanRemark,
-    });
-
     return this.request<CashMachineWithdrawResponse>("/api/player/playerWithdraw", {
       method: "POST",
-      body,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        balance: String(balance),
+        remark: cleanRemark,
+      }),
     });
   }
 }
