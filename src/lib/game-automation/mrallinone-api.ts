@@ -10,7 +10,7 @@ import { URL } from "url";
  *
  * Host: https://agentserver.mrallinone777.com
  * Auth: POST /api/agent/login → Bearer token
- * Requires whitelisted exit IP (MRALLINONE_PROXY_URL)
+ * Direct Vercel fetch — no proxy/whitelist (same as Casinova Gameroom/Cash Machine).
  */
 
 export interface MrAllInOneLoginResponse {
@@ -275,12 +275,7 @@ export class MrAllInOneApiClient {
       ""
     ).trim();
 
-    this.proxyUrl = (
-      config.proxyUrl ||
-      process.env.MRALLINONE_PROXY_URL ||
-      process.env.GAMEVAULT_PROXY_URL ||
-      ""
-    ).trim() || undefined;
+    this.proxyUrl = (config.proxyUrl || process.env.MRALLINONE_PROXY_URL || "").trim() || undefined;
   }
 
   private async ensureAuthenticated(): Promise<string> {
@@ -309,8 +304,9 @@ export class MrAllInOneApiClient {
     if (formParams) {
       const fields: Record<string, string> = {};
       for (const [k, v] of Object.entries(formParams)) fields[k] = String(v);
-      headers["Content-Type"] = "application/json";
-      bodyBuffer = Buffer.from(JSON.stringify(fields), "utf8");
+      const multipart = buildMultipart(fields);
+      headers["Content-Type"] = `multipart/form-data; boundary=${multipart.boundary}`;
+      bodyBuffer = multipart.body;
     }
 
     console.log(`[MR All-in-One API] ${method} ${endpoint}`);

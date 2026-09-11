@@ -54,8 +54,12 @@ export function formatGameAutomationError(
     return "GameVault API session/token expired (code 4).";
   }
 
-  if (code === 5 || /code 5\b|not white ip|whitelist|access ip/i.test(msg)) {
-    return "GameVault rejected the server IP because it is not whitelisted (code 5).";
+  // Game Vault API code 5 only — do not match generic "whitelist" in Layui/Gameroom errors
+  if (
+    code === 5 ||
+    /code 5\b|not white ip|access ip is not|ip is not white|not whitelist ip/i.test(msg)
+  ) {
+    return "Agent server rejected the request: server IP is not whitelisted (code 5). Ask your distributor to whitelist your proxy exit IP.";
   }
 
   if (code === 6 || /code 6\b|insufficient agent balance|insufficient balance/i.test(msg)) {

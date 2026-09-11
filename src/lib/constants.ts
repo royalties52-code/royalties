@@ -66,17 +66,11 @@ export const PUBLIC_ROUTES = [
 
 /** Official Royalties social profile URLs — used in footer, tasks, and share buttons */
 export const SOCIAL_LINKS = {
-  telegram:
-    process.env.NEXT_PUBLIC_TELEGRAM_URL ||
-    "https://t.me/+Y80HSM0UiZw5ODdh",
-  facebook:
-    process.env.NEXT_PUBLIC_FACEBOOK_URL ||
-    "https://www.facebook.com/share/19ea1cSC5W/",
-  instagram:
-    process.env.NEXT_PUBLIC_INSTAGRAM_URL ||
-    "https://www.instagram.com/royaltiesonlinecasino",
+  telegram: process.env.NEXT_PUBLIC_TELEGRAM_URL?.trim() || "",
+  facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL?.trim() || "",
+  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim() || "",
   tiktok:
-    process.env.NEXT_PUBLIC_TIKTOK_URL ||
+    process.env.NEXT_PUBLIC_TIKTOK_URL?.trim() ||
     "https://www.tiktok.com/@royaltiesonlinecasino",
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_URL || "https://wa.me/1234567890",
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_URL?.trim() || "",
 } as const;

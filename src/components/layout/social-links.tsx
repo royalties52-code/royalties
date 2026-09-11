@@ -48,14 +48,18 @@ const socialItems = [
   },
 ];
 
-const floatingSocialItems = socialItems.filter((item) =>
+const visibleSocialItems = socialItems.filter((item) => item.href.trim().length > 0);
+
+const floatingSocialItems = visibleSocialItems.filter((item) =>
   ["Telegram", "Facebook", "Instagram"].includes(item.name)
 );
 
 export function SocialLinks({ className = "" }: { className?: string }) {
+  if (visibleSocialItems.length === 0) return null;
+
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      {socialItems.map((item) => (
+      {visibleSocialItems.map((item) => (
         <a
           key={item.name}
           href={item.href}
@@ -73,6 +77,8 @@ export function SocialLinks({ className = "" }: { className?: string }) {
 
 /** Stacked social icons above the floating live chat button. */
 export function FloatingSocialLinks() {
+  if (floatingSocialItems.length === 0) return null;
+
   return (
     <div className="flex flex-col items-center gap-2 pointer-events-auto">
       {floatingSocialItems.map((item) => (

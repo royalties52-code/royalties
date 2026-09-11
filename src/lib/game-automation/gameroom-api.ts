@@ -1,10 +1,9 @@
-import { proxyFetch, resolveGameProxyUrl } from "./proxy-fetch";
-
 /**
  * Gameroom777 Direct REST API Client
  *
- * Same Layui agent API as Mafia / Cash Machine (JSON + Bearer token):
- * 1. Agent Login (POST /api/agent/login)
+ * Direct Vercel fetch — no proxy/whitelist (same as Casinova).
+ * Official API Integration for agentserver1.gameroom777.com:
+ * 1. Store Login (POST /api/agent/login)
  * 2. Get player list (GET /api/player/playerList)
  * 3. Add player (POST /api/player/insertPlayer)
  * 4. Get player scores (GET /api/player/getScore)
@@ -17,6 +16,7 @@ export interface GameroomLoginResponse {
   message: string;
   data: {
     userName: string;
+    nickname: string;
     money: string;
     token: string;
     expires_time: number;
@@ -46,7 +46,6 @@ export interface GameroomAddPlayerResponse {
   status_code: number;
   message: string;
   data: {
-    id: number;
     account: string;
     password: string;
     balance: string;
@@ -92,53 +91,35 @@ export interface GameroomApiConfig {
   baseUrl?: string;
   username?: string;
   password?: string;
-  proxyUrl?: string;
 }
 
-function gameroomBaseUrl(config?: GameroomApiConfig): string {
-  return (
-    config?.baseUrl ||
-    process.env.GAMEROOM_API_BASE_URL ||
-    process.env.GAMEROOM_ADMIN_URL ||
-    "https://agentserver1.gameroom777.com/admin/login"
-  )
-    .replace(/\/admin\/login\/?$/i, "")
-    .replace(/\/admin\/?$/i, "")
-    .replace(/\/+$/, "");
-}
-
-function wrapFetchError(err: unknown, action: string): Error {
-  const cause = (err as { cause?: { code?: string } })?.cause;
-  const code = cause?.code || "";
-  const msg = err instanceof Error ? err.message : String(err);
-  if (code === "UND_ERR_SOCKET" || /fetch failed|ECONNRESET|ETIMEDOUT/i.test(msg)) {
-    return new Error(
-      `Gameroom ${action}: server connection failed. The Gameroom agent host may be blocking this server's IP — contact your distributor to whitelist it (Mafia uses a different host and may work while Gameroom does not).`
-    );
-  }
-  return err instanceof Error ? err : new Error(msg);
+export interface ApiRequestOptions extends RequestInit {
+  _isRetry?: boolean;
 }
 
 export class GameroomApiClient {
   private baseUrl: string;
-  private username: string;
-  private password: string;
-  private proxyUrl?: string;
+  private agentUsername: string;
+  private agentPassword: string;
   private token: string | null = null;
-  private tokenExpiresAt: number = 0;
+  private expiresTime: number | null = null;
 
   constructor(config: GameroomApiConfig = {}) {
-    this.baseUrl = gameroomBaseUrl(config);
-    this.proxyUrl =
-      config.proxyUrl ||
-      resolveGameProxyUrl("GAMEROOM_PROXY_URL", "GAMEVAULT_PROXY_URL");
-    this.username = (
+    this.baseUrl = (
+      config.baseUrl ||
+      process.env.GAMEROOM_API_BASE_URL ||
+      process.env.GAMEROOM_ADMIN_URL?.replace(/\/admin.*$/i, "") ||
+      "https://agentserver1.gameroom777.com"
+    ).replace(/\/+$/, "");
+
+    this.agentUsername = (
       config.username ||
       process.env.GAMEROOM_AGENT_USERNAME ||
       process.env.GAMEROOM_USERNAME ||
       ""
     ).trim();
-    this.password = (
+
+    this.agentPassword = (
       config.password ||
       process.env.GAMEROOM_AGENT_PASSWORD ||
       process.env.GAMEROOM_PASSWORD ||
@@ -146,267 +127,193 @@ export class GameroomApiClient {
     ).trim();
   }
 
-  public async getValidToken(): Promise<string> {
+  private async ensureAuthenticated(): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
-    if (this.token && this.tokenExpiresAt > now + 60) {
+    if (this.token && this.expiresTime && this.expiresTime - now > 60) {
       return this.token;
     }
+    return this.login();
+  }
 
-    if (!this.username || !this.password) {
+  private buildFormData(params: Record<string, string | number>): FormData {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(params)) {
+      formData.append(key, String(value));
+    }
+    return formData;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: ApiRequestOptions = {},
+    requiresAuth = true
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const headers: Record<string, string> = {
+      ...(options.headers as Record<string, string>),
+    };
+
+    if (requiresAuth) {
+      const token = await this.ensureAuthenticated();
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    let json: any;
+    try {
+      json = await res.json();
+    } catch (e) {
+      throw new Error(`Invalid JSON response from Gameroom API (${res.status} ${res.statusText})`);
+    }
+
+    const statusCode = json.status_code ?? json.code ?? res.status;
+    if (statusCode !== 200) {
+      const errorMsg = json.message || json.msg || `API call failed with status ${statusCode}`;
+      if (statusCode === 401 && requiresAuth && !options._isRetry) {
+        this.token = null;
+        this.expiresTime = null;
+        return this.request<T>(endpoint, { ...options, _isRetry: true }, true);
+      }
+      throw new Error(errorMsg);
+    }
+
+    return json as T;
+  }
+
+  async login(username?: string, password?: string): Promise<string> {
+    const user = username || this.agentUsername;
+    const pass = password || this.agentPassword;
+
+    if (!user || !pass) {
       throw new Error("Gameroom agent credentials missing.");
     }
 
-    const loginUrl = `${this.baseUrl}/api/agent/login`;
-    let res: Response;
-    try {
-      res = await proxyFetch(
-        loginUrl,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: this.username,
-            password: this.password,
-          }),
-        },
-        this.proxyUrl
-      );
-    } catch (err) {
-      throw wrapFetchError(err, "login");
+    const body = this.buildFormData({ username: user, password: pass });
+    const res = await this.request<GameroomLoginResponse>("/api/agent/login", { method: "POST", body }, false);
+
+    if (!res.data?.token) {
+      throw new Error(res.message || "Store login failed: no token returned");
     }
 
-    if (!res.ok) {
-      throw new Error(`Gameroom login request failed (${res.status} ${res.statusText})`);
-    }
-
-    const json: GameroomLoginResponse = await res.json();
-    if (json.status_code !== 200 || !json.data?.token) {
-      throw new Error(`Gameroom login authentication failed: ${json.message || "Unknown error"}`);
-    }
-
-    this.token = json.data.token;
-    this.tokenExpiresAt = json.data.expires_time || now + 3600;
+    this.token = res.data.token;
+    this.expiresTime = res.data.expires_time || Math.floor(Date.now() / 1000) + 3600;
     return this.token;
   }
 
-  public async getPlayerList(page = 1, limit = 50, searchAccount?: string): Promise<GameroomPlayer[]> {
-    const token = await this.getValidToken();
-    let url = `${this.baseUrl}/api/player/playerList?page=${page}&limit=${limit}`;
-    if (searchAccount?.trim()) {
-      url += `&account=${encodeURIComponent(searchAccount.trim())}`;
-    }
-
-    let res: Response;
-    try {
-      res = await proxyFetch(url, { headers: { Authorization: `Bearer ${token}` } }, this.proxyUrl);
-    } catch (err) {
-      throw wrapFetchError(err, "player list");
-    }
-
-    if (!res.ok) {
-      throw new Error(`Gameroom getPlayerList HTTP error ${res.status}`);
-    }
-
-    const json: GameroomPlayerListResponse = await res.json();
-    if (json.status_code !== 200) {
-      throw new Error(`Gameroom getPlayerList error: ${json.message}`);
-    }
-
-    return json.data || [];
+  async getPlayerList(
+    limit: number = 50,
+    page: number = 1,
+    extra: Record<string, string> = {}
+  ): Promise<GameroomPlayerListResponse> {
+    const params = new URLSearchParams({
+      limit: String(limit),
+      page: String(page),
+      ...extra,
+    });
+    return this.request<GameroomPlayerListResponse>(`/api/player/playerList?${params.toString()}`);
   }
 
-  public async findPlayerByAccount(account: string): Promise<GameroomPlayer | null> {
-    const target = account.trim();
-    if (!target) return null;
-    if (/^\d+$/.test(target)) {
-      return { id: Number(target), Account: target } as GameroomPlayer;
+  async findPlayerByAccount(accountOrId: string | number): Promise<GameroomPlayer | null> {
+    const { resolveLayuiPlayerId, getCachedPlayerId } = await import("./layui-player-resolve");
+    const strVal = String(accountOrId).trim();
+    if (/^\d+$/.test(strVal)) {
+      return { id: Number(strVal), Account: strVal } as GameroomPlayer;
     }
+    const cached = getCachedPlayerId("gameroom", strVal);
+    if (cached) return { id: Number(cached), Account: strVal } as GameroomPlayer;
+    try {
+      const id = await resolveLayuiPlayerId({
+        agentKey: "gameroom",
+        accountOrId: strVal,
+        fetchList: async (params) => {
+          const limit = Number(params.limit || 20);
+          const page = Number(params.page || 1);
+          const { limit: _l, page: _p, ...extra } = params;
+          return this.getPlayerList(limit, page, extra);
+        },
+      });
+      return { id: Number(id), Account: strVal } as GameroomPlayer;
+    } catch {
+      return null;
+    }
+  }
 
-    const { getCachedPlayerId, cachePlayerId } = await import("./layui-player-resolve");
-    const cached = getCachedPlayerId("gameroom", target);
-    if (cached) return { id: Number(cached), Account: target } as GameroomPlayer;
+  async resolvePlayerId(accountOrId: string | number): Promise<string> {
+    const { resolveLayuiPlayerId } = await import("./layui-player-resolve");
+    return resolveLayuiPlayerId({
+      agentKey: "gameroom",
+      accountOrId,
+      fetchList: async (params) => {
+        const limit = Number(params.limit || 20);
+        const page = Number(params.page || 1);
+        const { limit: _l, page: _p, ...extra } = params;
+        return this.getPlayerList(limit, page, extra);
+      },
+    });
+  }
 
-    const players = await this.getPlayerList(1, 10, target);
-    const match = players.find(
-      (p) =>
-        p.Account.trim().toLowerCase() === target.toLowerCase() ||
-        p.nickname.trim().toLowerCase() === target.toLowerCase()
+  async addPlayer(
+    username: string,
+    password: string = "123456",
+    nickname?: string,
+    money: string | number = "0"
+  ): Promise<GameroomAddPlayerResponse> {
+    const cleanUser = username.trim();
+    let cleanNick = (nickname && nickname !== "-" ? nickname : cleanUser).replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+    if (!cleanNick) cleanNick = "User" + Math.floor(1000 + Math.random() * 9000);
+
+    const body = this.buildFormData({
+      username: cleanUser,
+      nickname: cleanNick,
+      password: String(password).trim(),
+      money: String(money),
+    });
+
+    return this.request<GameroomAddPlayerResponse>("/api/player/insertPlayer", { method: "POST", body }).then(
+      async (res) => {
+        try {
+          const { cachePlayerId } = await import("./layui-player-resolve");
+          const id = (res.data as any)?.id;
+          if (id) cachePlayerId("gameroom", res.data.account || cleanUser, id);
+        } catch {}
+        return res;
+      }
     );
-    if (match) cachePlayerId("gameroom", target, match.id);
-    return match || null;
   }
 
-  public async getPlayerScore(account: string): Promise<number> {
-    const player = await this.findPlayerByAccount(account);
-    if (!player) {
-      throw new Error(`Player ${account} not found on Gameroom agent panel`);
-    }
-
-    const token = await this.getValidToken();
-    const url = `${this.baseUrl}/api/player/getScore?id=${player.id}`;
-
-    let res: Response;
-    try {
-      res = await proxyFetch(url, { headers: { Authorization: `Bearer ${token}` } }, this.proxyUrl);
-    } catch (err) {
-      throw wrapFetchError(err, "balance check");
-    }
-
-    if (!res.ok) {
-      throw new Error(`Gameroom getPlayerScore HTTP error ${res.status}`);
-    }
-
-    const json: GameroomGetScoreResponse = await res.json();
-    if (json.status_code !== 200) {
-      throw new Error(`Gameroom getPlayerScore error: ${json.message}`);
-    }
-
-    return json.data.balance;
+  async getPlayerScore(idOrAccount: string | number): Promise<GameroomGetScoreResponse> {
+    const id = await this.resolvePlayerId(idOrAccount);
+    const params = new URLSearchParams({ id });
+    return this.request<GameroomGetScoreResponse>(`/api/player/getScore?${params.toString()}`);
   }
 
-  public async createAccount(
-    account: string,
-    pass: string
-  ): Promise<{ id: number; account: string; pass: string }> {
-    const token = await this.getValidToken();
-    const url = `${this.baseUrl}/api/player/insertPlayer`;
+  async rechargePlayer(
+    idOrAccount: string | number,
+    balance: number | string,
+    remark: string = "webrecharge"
+  ): Promise<GameroomRechargeResponse> {
+    const id = await this.resolvePlayerId(idOrAccount);
+    const cleanRemark = (remark || "webrecharge").replace(/[^a-zA-Z0-9]/g, "").slice(0, 50) || "webrecharge";
 
-    let res: Response;
-    try {
-      res = await proxyFetch(
-        url,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: account,
-            password: pass,
-          }),
-        },
-        this.proxyUrl
-      );
-    } catch (err) {
-      throw wrapFetchError(err, "create account");
-    }
-
-    if (!res.ok) {
-      throw new Error(`Gameroom createAccount HTTP error ${res.status}`);
-    }
-
-    const json: GameroomAddPlayerResponse = await res.json();
-    if (json.status_code !== 200) {
-      throw new Error(`Gameroom createAccount error: ${json.message}`);
-    }
-
-    const { cachePlayerId } = await import("./layui-player-resolve");
-    if (json.data?.id) cachePlayerId("gameroom", json.data.account || account, json.data.id);
-
-    return {
-      id: json.data.id,
-      account: json.data.account || account,
-      pass: json.data.password || pass,
-    };
+    const body = this.buildFormData({ id, balance: String(balance), remark: cleanRemark });
+    return this.request<GameroomRechargeResponse>("/api/player/playerRecharge", { method: "POST", body });
   }
 
-  public async rechargePlayer(account: string, amount: number): Promise<{ game_id: number; balance: number }> {
-    let player = await this.findPlayerByAccount(account);
-    if (!player) {
-      const created = await this.createAccount(account, "123123");
-      player = { id: created.id, Account: created.account } as GameroomPlayer;
-    }
+  async withdrawPlayer(
+    idOrAccount: string | number,
+    balance: number | string,
+    remark: string = "webwithdraw"
+  ): Promise<GameroomWithdrawResponse> {
+    const id = await this.resolvePlayerId(idOrAccount);
+    const cleanRemark = (remark || "webwithdraw").replace(/[^a-zA-Z0-9]/g, "").slice(0, 50) || "webwithdraw";
 
-    const token = await this.getValidToken();
-    const url = `${this.baseUrl}/api/player/playerRecharge`;
-
-    let res: Response;
-    try {
-      res = await proxyFetch(
-        url,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: player.id,
-            balance: String(amount),
-          }),
-        },
-        this.proxyUrl
-      );
-    } catch (err) {
-      throw wrapFetchError(err, "load");
-    }
-
-    if (!res.ok) {
-      throw new Error(`Gameroom rechargePlayer HTTP error ${res.status}`);
-    }
-
-    const json: GameroomRechargeResponse = await res.json();
-    if (json.status_code !== 200) {
-      throw new Error(`Gameroom rechargePlayer error: ${json.message}`);
-    }
-
-    return {
-      game_id: json.data.game_id,
-      balance: json.data.balance,
-    };
+    const body = this.buildFormData({ id, balance: String(balance), remark: cleanRemark });
+    return this.request<GameroomWithdrawResponse>("/api/player/playerWithdraw", { method: "POST", body });
   }
-
-  public async withdrawPlayer(account: string, amount: number): Promise<{ game_id: number; balance: number }> {
-    const player = await this.findPlayerByAccount(account);
-    if (!player) {
-      throw new Error(`Player ${account} not found on Gameroom agent panel`);
-    }
-
-    const token = await this.getValidToken();
-    const url = `${this.baseUrl}/api/player/playerWithdraw`;
-
-    let res: Response;
-    try {
-      res = await proxyFetch(
-        url,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: player.id,
-            balance: String(amount),
-          }),
-        },
-        this.proxyUrl
-      );
-    } catch (err) {
-      throw wrapFetchError(err, "redeem");
-    }
-
-    if (!res.ok) {
-      throw new Error(`Gameroom withdrawPlayer HTTP error ${res.status}`);
-    }
-
-    const json: GameroomWithdrawResponse = await res.json();
-    if (json.status_code !== 200) {
-      throw new Error(`Gameroom withdrawPlayer error: ${json.message}`);
-    }
-
-    return {
-      game_id: json.data.game_id,
-      balance: json.data.balance,
-    };
-  }
-}
-
-export function isGameroomApiConfigured(): boolean {
-  const username = process.env.GAMEROOM_AGENT_USERNAME || process.env.GAMEROOM_USERNAME || "";
-  const password = process.env.GAMEROOM_AGENT_PASSWORD || process.env.GAMEROOM_PASSWORD || "";
-  return Boolean(username.trim() && password.trim());
 }
 
 let globalClient: GameroomApiClient | null = null;
